@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,33 +12,55 @@ namespace ThrowingDiceGUI.ViewModels
 	 **/
 	class Player
 	{
-		private int deposit;
-		private int bet; 
+		private int _Deposit;
+		private int _Bet; 
+		public int Deposit
+		{
+			get
+			{
+				return _Deposit;
+			}
+			set
+			{
+				_Deposit = value;
+			}
+		}
+		public int Bet
+		{
+			get
+			{
+				return _Bet;
+			}
+			set
+			{
+				_Bet = value;
+			}
+		}
 
 		public Player()
 		{
-			deposit = 0;
-			bet = 0;
+			Deposit = 0;
+			Bet = 0;
 		}
 
-		public void SetBet(int bet)
-		{
-			this.bet = bet;
-		}
+		//public void SetBet(int bet)
+		//{
+		//	this.bet = bet;
+		//}
 
-		public int GetBet() 
-		{
-			return this.bet;
-		}
+		//public int GetBet() 
+		//{
+		//	return this.bet;
+		//}
 
-		public void SetDeposit(int deposit) 
-		{
-			this.deposit = deposit;
-		}
+		//public void SetDeposit(int deposit) 
+		//{
+		//	this.deposit = deposit;
+		//}
 
-		public int GetDeposit() 
-		{
-			return this.deposit;
-		}
+		//public int GetDeposit() 
+		//{
+		//	return this.deposit;
+		//}
 	}
 }
