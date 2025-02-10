@@ -1,0 +1,45 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:ThrowingDiceGUI.ViewModels"
+             x:Class="ThrowingDiceGUI.Views.GameView">
+
+	<UserControl.DataContext>
+		<vm:GameViewModel/>
+	</UserControl.DataContext>
+
+	<StackPanel Width="450" Height="450">
+		
+		<Panel Background="LightGray" Height="50">
+			<TextBlock	HorizontalAlignment="Center"
+						VerticalAlignment="Center"
+						FontWeight="Bold"
+						Text="{Binding Message}" 
+						/>
+		</Panel>
+
+		<Panel Background="AliceBlue" Width="450" Height="50">
+			<StackPanel>
+				<TextBlock TextDecorations="Underline">Result: </TextBlock>
+				<TextBlock>Player	: </TextBlock>
+				<TextBlock>NPC	:</TextBlock>
+			</StackPanel>
+
+			
+		</Panel>
+	</StackPanel>
+	
+	
+<!--	<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+		<TextBlock Text="{Binding StatusMessage}" FontSize="20" Foreground="White" Margin="10"/>
+
+		<Button Content="Deposit 500" Command="{Binding DepositCommand}" CommandParameter="500"/>
+		<Button Content="Bet 100" Command="{Binding BetCommand}" CommandParameter="100"/>
+		<Button Content="Roll Dice" Command="{Binding PlayRoundCommand}"/>
+		<Button Content="Restart Game" Command="{Binding ResetGameCommand}"/>
+
+		<TextBlock Text="Player Score: {Binding PlayerScore}" FontSize="18" Foreground="White"/>
+		<TextBlock Text="NPC Score: {Binding NpcScore}" FontSize="18" Foreground="White"/>
+		<TextBlock Text="Balance: {Binding CurrentBalance}" FontSize="18" Foreground="LightGreen"/>
+		<TextBlock Text="Current Bet: {Binding CurrentBet}" FontSize="18" Foreground="LightBlue"/>
+	</StackPanel> -->
+</UserControl>
