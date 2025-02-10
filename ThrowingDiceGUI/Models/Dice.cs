@@ -13,8 +13,13 @@ namespace ThrowingDiceGUI.Models
 
 	public class Dice
 	{
-		public int DiceValue { get; set; }
-
+		private int _DiceValue;
+		public int DiceValue 
+		{
+			get => _DiceValue;
+			set => _DiceValue = value;
+		}
+		
 		public Dice() 
 		{
 			DiceValue = 1; 
