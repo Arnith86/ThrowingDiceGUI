@@ -33,52 +33,67 @@ namespace ThrowingDiceGUI.Models
 
 
 		private Player player;
-
 		private Dice[] playerDice;
 		private Dice[] npcDice;
+		private Dictionary<int, int> betValues;
+		private int[] roundWinCount;
 
-		private bool betRegistered; 
+
+		public int CurrentBalance => player.Deposit;
+		public int CurrentBet => player.Bet;
+		public int PlayerScore => roundWinCount[0];
+		public int NpcScore => roundWinCount[1];
+		private bool betRegistered; // still needed? 
 
 		// This method will handel all game logic 
-		public Gamelogic() 
+		public Gamelogic()
 		{
 			//consoleMessages = ConsoleMessages.Instance;
-			
+
 			// Regex pattern, only positive integers
 			//string integerPattern = @"^\d+$";
 			//string oneTwoPattern = @"^[1-2]+$";
 			//string oneTwoThreePattern = @"^[1-3]+$";
+			player = new Player();
+			playerDice = new Dice[] { new Dice(), new Dice() };
+			npcDice = new Dice[] { new Dice(), new Dice() };
 
-			Dictionary<int, int> betValues = new Dictionary<int, int>
+			betValues = new Dictionary<int, int>
 			{
-				{1, 100},
-				{2, 300},
-				{3, 500}
+				{1, 100},{2, 300},{3, 500}
 			};
 
 			// Index 1: player, Index 2: Npc
-			int[] roundWinCount = new int[] { 0, 0 };
+			roundWinCount = new int[] { 0, 0 };
 
-			player = new Player();
+		}
 
-			// Player and Npc dice hands
-			playerDice = new Dice[2];
-			playerDice[0] = new Dice();
-			playerDice[1] = new Dice();
-			npcDice = new Dice[2];
-			npcDice[0] = new Dice();
-			npcDice[1] = new Dice();		
+		public bool setDeposit(int amount)
+		{
+			if (amount < 100 || amount > 5000) return false; 
 			
-			betRegistered = false; 
+			player.Deposit = amount;
+			return true;
+		}
 
-			// Displays welcome message 
-			//consoleMessages.DisplayMessage(_WELCOME);
+		public bool setBet(int amount)
+		{
+			if (amount < 0 || amount > 3) return false;
+			
+			player.Bet = amount;
+			return true;
+		}
+
+		// betRegistered = false; 
+
+		// Displays welcome message 
+		//consoleMessages.DisplayMessage(_WELCOME);
 
 		//	while (true) 
 		//	{
 		//		// Empties the console on new game
 		//		Console.Clear();
-				
+
 		//		// Shows current balance, on program start = 0, otherwise current balace.
 		//		consoleMessages.DisplayMessage(_CURRENT_BALANCE, player.GetDeposit());
 
@@ -125,7 +140,7 @@ namespace ThrowingDiceGUI.Models
 		//			}
 
 		//			int tempBetValue = betValues[int.Parse(inputBet)];
-					
+
 		//			// Bet exceeds current founds 
 		//			if (tempBetValue > player.GetDeposit())
 		//			{
@@ -137,12 +152,12 @@ namespace ThrowingDiceGUI.Models
 		//			player.SetDeposit(player.GetDeposit() - tempBetValue);
 
 		//			betRegistered = true;
-					
+
 		//			// Displays current balance and bet to player
 		//			Console.Clear();
 		//			consoleMessages.DisplayMessage(_CURRENT_BALANCE, player.GetDeposit());
 		//			consoleMessages.DisplayMessage(_CURRENT_BET, player.GetBet());
-					
+
 
 		//		}
 
@@ -154,7 +169,7 @@ namespace ThrowingDiceGUI.Models
 		//			else roundWinCount[1]++;
 
 		//			consoleMessages.DisplayGameStats(roundWinCount);
-					
+
 		//			// If game has not been won, force player to press button to proceed to next throw
 		//			// On press current account balance and chosen bet is displayed 
 		//			if (roundWinCount[0] != 2 && roundWinCount[1] != 2)
@@ -172,7 +187,7 @@ namespace ThrowingDiceGUI.Models
 		//				if (roundWinCount[0] == 2)
 		//				{
 		//					consoleMessages.DisplayMessage(_PLAYER_GAME_WIN);
-							
+
 		//					// Calculate and set the new account balance baseed on current bet 
 		//					int foundsAdded = player.GetBet() * 2;
 		//					player.SetDeposit(player.GetDeposit() + foundsAdded);
@@ -180,7 +195,7 @@ namespace ThrowingDiceGUI.Models
 		//					// Displays current balance and bet to player
 		//					consoleMessages.DisplayMessage(_FOUNDS_ADDED, foundsAdded);
 		//					consoleMessages.DisplayMessage(_CURRENT_BALANCE, player.GetDeposit());
-							
+
 		//				}
 		//				// Npc won the game
 		//				else
@@ -191,13 +206,13 @@ namespace ThrowingDiceGUI.Models
 		//				// Player given the choice to continue or quit
 		//				consoleMessages.DisplayMessage(_CONTINUE);
 		//			} 
-					
+
 		//			// Enables regestering of a new bet 
 		//			betRegistered = false;
 
 		//		} while (!(roundWinCount[0] == 2) && !(roundWinCount[1] == 2));
-						
-				
+
+
 		//		bool yesNoRegistered = false;
 		//		string yesNo = "";
 
@@ -212,10 +227,10 @@ namespace ThrowingDiceGUI.Models
 		//				consoleMessages.DisplayMessage(_YES_NO_ERROR);
 		//				continue;
 		//			}
-					
+
 		//			yesNoRegistered = true;
 		//		}
-				
+
 		//		roundWinCount[0] = 0;
 		//		roundWinCount[1] = 0;
 
@@ -262,7 +277,7 @@ namespace ThrowingDiceGUI.Models
 		//			// wait for buttonpress 
 		//			Console.ReadKey();
 		//			continue;
-					
+
 		//		}
 
 		//		// Highest valued dice of both players equal, use the other die
@@ -283,7 +298,7 @@ namespace ThrowingDiceGUI.Models
 		//	// Npc won
 		//	consoleMessages.DisplayMessage(_NPC_ROUND_WIN);
 		//	return false;
-		}
+		//}
 
 		// Sort the array with highest valued element first 
 		private Dice[] SorByDescending(Dice[] dices)
