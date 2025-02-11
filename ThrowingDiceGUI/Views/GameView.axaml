@@ -8,14 +8,15 @@
 	</UserControl.DataContext>
 
 	
-	<StackPanel Width="450" Height="450" Margin="5">
+	<StackPanel Width="450" Height="450" Margin="1">
 		
 		<!--Remove border if not used in final version -->
 		<Border BorderBrush="Black" BorderThickness="1"> 
-			<Grid ShowGridLines="false"  
-					Width="" Height="50" Margin="20"
-					ColumnDefinitions="50, 50, 200, Auto, Auto"
-					RowDefinitions="Auto, Auto, Auto">
+			
+			<Grid ShowGridLines="false"
+				  Width="" Height="50" Margin="20"
+				  ColumnDefinitions="50, 50, 200, Auto, Auto"
+				  RowDefinitions="Auto, Auto, Auto">
 
 				<TextBlock TextDecorations="Underline" FontWeight="Bold">Result</TextBlock>
 				<TextBlock Grid.Row="1" Grid.Column="0">Player :</TextBlock>
@@ -30,7 +31,31 @@
 
 			</Grid>
 		</Border>
+		
+		<RelativePanel Width="150" Height="200"  HorizontalAlignment="Left">
+			<Border BorderBrush="Black" BorderThickness="1">
+				<StackPanel>
+				
+					<!-- StackPanel for found input -->
+					<StackPanel Margin="5">
+					
+						<TextBlock FontWeight="Bold">Add founds:</TextBlock>
+						<TextBox Watermark="100 ≥ X ≥ 5000"/>
 
+					</StackPanel>
+					
+					<!-- StackPanel for Bet input -->
+					<StackPanel Margin="10" Spacing="10">
+
+						<Button HorizontalAlignment="Center" Content="100"/>
+						<Button HorizontalAlignment="Center" Content="300"/>
+						<Button HorizontalAlignment="Center" Content="500"/>
+
+					</StackPanel>
+				</StackPanel>	
+			</Border>
+		</RelativePanel>	
+		
 		<StackPanel Background="LightGray">
 
 			<!-- Welcome message -->

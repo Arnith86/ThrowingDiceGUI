@@ -22,8 +22,8 @@ namespace ThrowingDiceGUI.Models
 			{
 				{ "Welcome", "Welcome! \n\nThe game involves the player and the computer rolling two dice at a time for three rounds. \n\n" +
 								"The player who rolls the highest individual die in a round wins that round. \n\n" +
-								"The best out of three rounds determines the winner.\n" },
-				{ "Start_Deposit", "How much money do you want do deposit? \nRegister a value between 100 - 5000kr.\n" },
+								"The best out of three rounds determines the winner." },
+				{ "Start_Deposit", "How much money do you want do deposit? \nRegister a value between 100 - 5000kr." },
 				{ "Deposit_Error", "Only integer values between 100 and 5000 are permited! \nTry again!\n" },
 				{ "Current_Balance", "kr in account! \n" },
 				{ "Start_Bet", "How much will you bet? \n 1: 100kr \n 2: 300kr \n 3: 500kr" },
