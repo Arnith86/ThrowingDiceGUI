@@ -57,6 +57,21 @@ namespace ThrowingDiceGUI.Models
 				return instance; 
 			} 
 		}
+				
+		// Read-Only Property (only a getter, No set Method)
+		public string LastMessage => lastMessage;
+
+		// Retrives the desired message, if it exists.
+		public string GetMessage(string key, int value = -1)
+		{
+			if (messages.TryGetValue(key, out string message))
+			{
+				lastMessage = value == -1 ? message : $"{value} {message}";
+				return lastMessage;
+			}
+			return $"Message for key '{key}' not found.";
+		}
+
 
 		// Retrives the desired message, if it exists.
 		//public string GetMessage(string key)
@@ -81,17 +96,5 @@ namespace ThrowingDiceGUI.Models
 		//	}
 		//}
 
-
-		public string GetMessage(string key, int value = -1)
-		{
-			if (messages.TryGetValue(key, out string message))
-			{
-				lastMessage = value == -1 ? message : $"{value} {message}";
-				return lastMessage;
-			}
-			return $"Message for key '{key}' not found.";
-		}
-
-		public string LastMessage => lastMessage;
 	}
 }

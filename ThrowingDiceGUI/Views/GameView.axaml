@@ -10,15 +10,6 @@
 	
 	<StackPanel Width="450" Height="450" Margin="5">
 		
-		<Panel Background="LightGray">
-			<TextBlock	HorizontalAlignment="Center" 
-						VerticalAlignment="Center" 
-						TextAlignment="Center" 
-						Margin="5" FontWeight="Bold"
-						TextWrapping="Wrap" MaxWidth="400"
-						Text="{Binding Message}"/>
-		</Panel>
-
 		<!--Remove border if not used in final version -->
 		<Border BorderBrush="Black" BorderThickness="1"> 
 			<Grid ShowGridLines="false"  
@@ -40,6 +31,25 @@
 			</Grid>
 		</Border>
 
+		<StackPanel Background="LightGray">
+
+			<!-- Welcome message -->
+			<TextBlock	HorizontalAlignment="Center"
+						VerticalAlignment="Center"
+						TextAlignment="Center"
+						Margin="5" FontWeight="Bold"
+						TextWrapping="Wrap" MaxWidth="400"
+						Text="{Binding Message}"/>
+
+			<!-- Start button -->
+			<Button Content="Start Game"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Bottom"
+					Command="{Binding StartGameCommand}"
+					IsVisible="{Binding IsStartButtonVisible}"/>
+
+		</StackPanel>
+		
 	</StackPanel>
 	
 	

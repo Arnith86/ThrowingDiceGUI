@@ -9,29 +9,6 @@ namespace ThrowingDiceGUI.Models
 {
 	class Gamelogic
 	{
-		//ConsoleMessages consoleMessages;
-
-		//static string _WELCOME = "Welcome";
-		//static string _START_DEPOSIT = "Start_Deposit";
-		//static string _DEPOSIT_ERROR = "Deposit_Error";
-		//static string _CURRENT_BALANCE = "Current_Balance";
-		//static string _START_BET = "Start_Bet";
-		//static string _BET_ERROR_INT = "Bet_Error_Int";
-		//static string _CURRENT_BET = "Current_Bet";
-		//static string _BET_BALANCE_ERROR = "Bet_Balance_Error";
-		//static string _NEW_THROW = "New_Throw"; 
-		//static string _SHOW_DIE = "Show_Die";
-		//static string _PLAYER_ROUND_WIN = "Player_Round_Win";
-		//static string _NPC_ROUND_WIN = "Npc_Round_Win";
-		//static string _PLAYER_GAME_WIN = "Player_Game_Win";
-		//static string _NPC_GAME_WIN = "Npc_Game_Win";
-		//static string _BUTTON_PRESS = "Button_Press";
-		//static string _CONTINUE = "Continue";
-		//static string _FOUNDS_ADDED = "Founds_Added";
-		//static string _YES_NO_ERROR = "Yes_No_Error";
-		//static string _END_GAME = "End_Game";
-
-
 		private Player player;
 		private Dice[] playerDice;
 		private Dice[] npcDice;
@@ -48,8 +25,6 @@ namespace ThrowingDiceGUI.Models
 		// This method will handel all game logic 
 		public Gamelogic()
 		{
-			//consoleMessages = ConsoleMessages.Instance;
-
 			// Regex pattern, only positive integers
 			//string integerPattern = @"^\d+$";
 			//string oneTwoPattern = @"^[1-2]+$";
@@ -65,7 +40,6 @@ namespace ThrowingDiceGUI.Models
 
 			// Index 1: player, Index 2: Npc
 			roundWinCount = new int[] { 0, 0 };
-
 		}
 
 		public bool setDeposit(int amount)
@@ -247,58 +221,49 @@ namespace ThrowingDiceGUI.Models
 		//}
 
 
-		//// Handles a single round of dice throws 
-		//private bool GameRound(Dice[] playerDice, Dice[] npcDice)
-		//{
-		//	int playerHighest = 0;
-		//	int npcHighest = 0; 
+		// Handles a single round of dice throws 
+		private bool GameRound(Dice[] playerDice, Dice[] npcDice)
+		{
+			int playerHighest = 0;
+			int npcHighest = 0;
 
-		//	while (playerHighest == npcHighest) 
-		//	{
-		//		ThrowDiceSet(playerDice);
-		//		ThrowDiceSet(npcDice);
 
-		//		playerDice = SorByDescending(playerDice);
-		//		npcDice = SorByDescending(npcDice);
+			do
+			{
+				ThrowDiceSet(playerDice);
+				ThrowDiceSet(npcDice);
 
-		//		// Present results
-		//		consoleMessages.DisplayMessage(_SHOW_DIE);
-		//		consoleMessages.DisplayDieResults(playerDice, npcDice);
+				playerDice = SorByDescending(playerDice);
+				npcDice = SorByDescending(npcDice);
 
-		//		playerHighest = playerDice[0].DiceValue;
-		//		npcHighest = npcDice[0].DiceValue;
 
-		//		// Handles instances where highest dice or all pairs are equal
-		//		if (playerDice[0].DiceValue == npcDice[0].DiceValue && 
-		//			playerDice[1].DiceValue == npcDice[1].DiceValue) 
-		//		{
-		//			// Both pair of dice are equal, perform a new throw
-		//			consoleMessages.DisplayMessage(_NEW_THROW);
-		//			// wait for buttonpress 
-		//			Console.ReadKey();
-		//			continue;
+				playerHighest = playerDice[0].DiceValue;
+				npcHighest = npcDice[0].DiceValue;
 
-		//		}
+				// Handles instances where highest dice or all pairs are equal
+				if (playerDice[0].DiceValue == npcDice[0].DiceValue &&
+					playerDice[1].DiceValue == npcDice[1].DiceValue)
+				{
+					// Both pair of dice are equal, perform a new throw 
+					// !!!!!!!!!!!!!!!!!! Must be handled with UI ----------	
+					// wait for buttonpress ------- HOW? 
+					Console.ReadKey();
+					continue;
 
-		//		// Highest valued dice of both players equal, use the other die
-		//		else if (playerDice[0].DiceValue == npcDice[0].DiceValue) 
-		//		{
-		//			playerHighest = playerDice[1].DiceValue;
-		//			npcHighest = npcDice[1].DiceValue;
-		//		}
+				}
 
-		//		// Player won
-		//		if (playerHighest > npcHighest) 
-		//		{ 
-		//			consoleMessages.DisplayMessage(_PLAYER_ROUND_WIN); 
-		//			return true; 
-		//		}
-		//	}
+				// Highest valued dice of both players equal, use the other die
+				else if (playerDice[0].DiceValue == npcDice[0].DiceValue)
+				{
+					playerHighest = playerDice[1].DiceValue;
+					npcHighest = npcDice[1].DiceValue;
+				}
+				
+			} while (playerHighest == npcHighest);
 
-		//	// Npc won
-		//	consoleMessages.DisplayMessage(_NPC_ROUND_WIN);
-		//	return false;
-		//}
+			// Has player won?
+			return playerHighest > npcHighest;
+		}
 
 		// Sort the array with highest valued element first 
 		private Dice[] SorByDescending(Dice[] dices)

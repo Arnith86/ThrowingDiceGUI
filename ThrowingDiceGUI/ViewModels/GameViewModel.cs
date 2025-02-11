@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Text;
 using System.Threading.Tasks;
 using ThrowingDiceGUI.Models;
@@ -33,24 +34,41 @@ namespace ThrowingDiceGUI.ViewModels
 
 
 		private readonly Gamelogic _game;
-		private string _message = Messages.Instance.GetMessage(_WELCOME);
+		private string _message; 
+		private bool _isStartButtonVisible;
 
 		public GameViewModel()
 		{
+			_message = Messages.Instance.GetMessage(_WELCOME);
+			_isStartButtonVisible = true;
 			_game = new Gamelogic();
 
+			StartGameCommand = ReactiveCommand.Create(StartGame);
 		}
 
 		public int PlayerScore => _game.PlayerScore;
 		public int NpcScore => _game.NpcScore;
 		public int CurrentBalance => _game.CurrentBalance;
 		public int CurrentBet => _game.CurrentBet;
+		public ReactiveCommand<Unit, Unit> StartGameCommand { get; }
 
+		// Updates the displayed information message 
 		public string Message
 		{
 			get => _message;
 			set => this.RaiseAndSetIfChanged(ref _message, value);  // Notifies UI when changed
 		}
 
+		// Changes the visibility of the start button
+		public bool IsStartButtonVisible
+		{
+			get => _isStartButtonVisible;
+			set => this.RaiseAndSetIfChanged(ref _isStartButtonVisible, value);
+		}
+		private void StartGame() 
+		{
+			Message = Messages.Instance.GetMessage(_START_DEPOSIT);
+			IsStartButtonVisible = false;
+		}
 	}
 }
