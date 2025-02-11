@@ -10,17 +10,18 @@ namespace ThrowingDiceGUI.Models
 	/** 
 	 * This class contains all the console messages used in the program 
 	 **/
-	public class ConsoleMessages
+	public class Messages
 	{
-		private static ConsoleMessages instance;
+		private static Messages instance;
 		Dictionary<string, string> messages;
+		private string lastMessage = "";
 
-		private ConsoleMessages() 
+		private Messages() 
 		{
 			messages = new Dictionary<string, string>
 			{
-				{ "Welcome", "The game involves the player and the computer rolling two dice at a time for three rounds. \n" +
-								"The player who rolls the highest individual die in a round wins that round. \n" +
+				{ "Welcome", "Welcome! \n\nThe game involves the player and the computer rolling two dice at a time for three rounds. \n\n" +
+								"The player who rolls the highest individual die in a round wins that round. \n\n" +
 								"The best out of three rounds determines the winner.\n" },
 				{ "Start_Deposit", "How much money do you want do deposit? \nRegister a value between 100 - 5000kr.\n" },
 				{ "Deposit_Error", "Only integer values between 100 and 5000 are permited! \nTry again!\n" },
@@ -45,52 +46,52 @@ namespace ThrowingDiceGUI.Models
 
 
 		// creates the singleton instance 
-		public static ConsoleMessages Instance 
+		public static Messages Instance 
 		{ 
 			get 
 			{
 				if (instance == null)
 				{
-					instance = new ConsoleMessages();
+					instance = new Messages();
 				}
 				return instance; 
 			} 
 		}
 
 		// Retrives the desired message, if it exists.
-		public string GetMessage(string key)
+		//public string GetMessage(string key)
+		//{
+		//	if (messages.TryGetValue(key, out string message))
+		//	{
+		//		return message;
+		//	}
+
+		//	return $"Message for key '{key}' not found.";
+		//}
+
+		//public void DisplayMessage(string key, int value = -1)
+		//{
+		//	if (value == -1)
+		//	{
+		//		Console.WriteLine(GetMessage(key));
+		//	}
+		//	else
+		//	{
+		//		Console.WriteLine(value + GetMessage(key));
+		//	}
+		//}
+
+
+		public string GetMessage(string key, int value = -1)
 		{
 			if (messages.TryGetValue(key, out string message))
 			{
-				return message;
+				lastMessage = value == -1 ? message : $"{value} {message}";
+				return lastMessage;
 			}
-
 			return $"Message for key '{key}' not found.";
 		}
 
-		public void DisplayMessage(string key, int value = -1)
-		{
-			if (value == -1)
-			{
-				Console.WriteLine(GetMessage(key));
-			}
-			else
-			{
-				Console.WriteLine(value + GetMessage(key));
-			}
-		}
-
-		public void DisplayDieResults(Dice[] playerDice, Dice[] npcDice)
-		{
-			Console.WriteLine($"Player: {playerDice[0].DiceValue} {playerDice[1].DiceValue}");
-			Console.WriteLine($"Npc: {npcDice[0].DiceValue} {npcDice[1].DiceValue}");
-		}
-
-		public void DisplayGameStats(int[] gameStats)
-		{
-			Console.WriteLine("Won rounds: ");
-			Console.WriteLine($"Player: {gameStats[0]}");
-			Console.WriteLine($"Npc: {gameStats[1]}\n");
-		}
+		public string LastMessage => lastMessage;
 	}
 }

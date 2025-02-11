@@ -10,12 +10,13 @@
 	
 	<StackPanel Width="450" Height="450" Margin="5">
 		
-		<Panel Background="LightGray" Height="50">
-			<TextBlock	HorizontalAlignment="Center"
-						VerticalAlignment="Center"
-						FontWeight="Bold"
-						Text="{Binding Message}" 
-						/>
+		<Panel Background="LightGray">
+			<TextBlock	HorizontalAlignment="Center" 
+						VerticalAlignment="Center" 
+						TextAlignment="Center" 
+						Margin="5" FontWeight="Bold"
+						TextWrapping="Wrap" MaxWidth="400"
+						Text="{Binding Message}"/>
 		</Panel>
 
 		<!--Remove border if not used in final version -->
