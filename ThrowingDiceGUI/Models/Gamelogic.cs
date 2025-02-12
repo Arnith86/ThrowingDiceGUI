@@ -42,7 +42,7 @@ namespace ThrowingDiceGUI.Models
 			roundWinCount = new int[] { 0, 0 };
 		}
 
-		public bool setDeposit(int amount)
+		public bool SetAndCheckDeposit(int amount)
 		{
 			if (amount < 100 || amount > 5000) return false; 
 			

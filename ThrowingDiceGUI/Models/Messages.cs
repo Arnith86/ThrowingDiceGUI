@@ -24,7 +24,7 @@ namespace ThrowingDiceGUI.Models
 								"The player who rolls the highest individual die in a round wins that round. \n\n" +
 								"The best out of three rounds determines the winner." },
 				{ "Start_Deposit", "How much money do you want do deposit? \nRegister a value between 100 - 5000kr." },
-				{ "Deposit_Error", "Only integer values between 100 and 5000 are permited! \nTry again!\n" },
+				{ "Deposit_Error", "Only integer values between 100 and 5000 are permited! \nTry again!" },
 				{ "Current_Balance", "kr in account! \n" },
 				{ "Start_Bet", "How much will you bet? \n 1: 100kr \n 2: 300kr \n 3: 500kr" },
 				{ "Bet_Error_Int", "Provide an integer between 1 and 3!" },

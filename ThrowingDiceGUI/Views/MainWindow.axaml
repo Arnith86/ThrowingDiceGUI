@@ -7,6 +7,10 @@
         mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="450"
         x:Class="ThrowingDiceGUI.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
-        Title="ThrowingDiceGUI">
+        Title="ThrowingDiceGUI"
+		MinHeight="340"
+		MinWidth="450"
+		MaxWidth="450"
+		SizeToContent="Height">
 	<views:GameView />
 </Window>

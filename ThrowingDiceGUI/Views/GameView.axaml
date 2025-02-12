@@ -8,13 +8,13 @@
 	</UserControl.DataContext>
 
 	
-	<StackPanel Width="450" Height="450" Margin="1">
+	<StackPanel Background="AliceBlue" Width="450" Margin="1" Spacing="1">
 		
 		<!--Remove border if not used in final version -->
 		<Border BorderBrush="Black" BorderThickness="1"> 
 			
 			<Grid ShowGridLines="false"
-				  Width="" Height="50" Margin="20"
+				  Height="50" Margin="10"
 				  ColumnDefinitions="50, 50, 200, Auto, Auto"
 				  RowDefinitions="Auto, Auto, Auto">
 
@@ -31,20 +31,64 @@
 
 			</Grid>
 		</Border>
-		
-		<RelativePanel Width="150" Height="200"  HorizontalAlignment="Left">
+
+		<Panel>
+			<Border BorderBrush="Black" BorderThickness="1">
+				<RelativePanel>
+				
+					<!-- StackPanel for found input -->
+					<StackPanel x:Name="Funds" RelativePanel.AlignLeftWithPanel="True" 
+								Margin="10" Width="200" >
+											
+						<TextBlock FontWeight="Bold">Add funds:</TextBlock>
+						
+						<!-- Funds input and send button -->
+						<StackPanel Orientation="Horizontal">
+							
+							<TextBox x:Name="DepositTextBox" 
+									 Watermark="100 ≥ X ≥ 5000" 
+									 Width="120" HorizontalAlignment="Left"
+									 />
+						
+							<Button Content="Add" Click="OnDepositButtonClick"/>	
+							<!-- DONT FORGET TO ADD ISENABLED -->
+							
+						</StackPanel>
+
+						
+						
+					</StackPanel>
+						
+					<StackPanel x:Name="Bets" RelativePanel.RightOf="Funds" Margin="10">
+						
+						<TextBlock FontWeight="Bold">Bets:</TextBlock>
+						
+						<StackPanel Orientation="Horizontal" Spacing="20">
+							
+							<Button Content="100"/>
+							<Button Content="300"/>
+							<Button Content="500"/>
+							
+						</StackPanel>
+						
+					</StackPanel>
+
+				</RelativePanel>
+			</Border>
+		</Panel>
+		<!--<RelativePanel Width="450" Height="200"  HorizontalAlignment="Left">
 			<Border BorderBrush="Black" BorderThickness="1">
 				<StackPanel>
 				
-					<!-- StackPanel for found input -->
+					--><!-- StackPanel for found input --><!--
 					<StackPanel Margin="5">
 					
 						<TextBlock FontWeight="Bold">Add founds:</TextBlock>
-						<TextBox Watermark="100 ≥ X ≥ 5000"/>
+						<TextBox Watermark="100 ≥ X ≥ 5000" Width="120"/>
 
 					</StackPanel>
 					
-					<!-- StackPanel for Bet input -->
+					--><!-- StackPanel for Bet input --><!--
 					<StackPanel Margin="10" Spacing="10">
 
 						<Button HorizontalAlignment="Center" Content="100"/>
@@ -54,9 +98,9 @@
 					</StackPanel>
 				</StackPanel>	
 			</Border>
-		</RelativePanel>	
+		</RelativePanel>-->	
 		
-		<StackPanel Background="LightGray">
+		<StackPanel Background="WhiteSmoke">
 
 			<!-- Welcome message -->
 			<TextBlock	HorizontalAlignment="Center"
