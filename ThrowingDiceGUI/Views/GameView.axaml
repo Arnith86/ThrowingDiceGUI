@@ -10,7 +10,8 @@
 	
 	<StackPanel Background="AliceBlue" Width="450" Margin="1" Spacing="1">
 		
-		<!--Remove border if not used in final version -->
+		<!-- Displays current stats-->
+		<!-- Round results, usable funds and current bet -->
 		<Border BorderBrush="Black" BorderThickness="1"> 
 			
 			<Grid ShowGridLines="false"
@@ -32,34 +33,43 @@
 			</Grid>
 		</Border>
 
+		<!-- Contains all player game inputs -->
+		<!-- Funds and bet inputs -->
 		<Panel>
 			<Border BorderBrush="Black" BorderThickness="1">
-				<RelativePanel>
+				<Panel IsVisible="{Binding IsInputPanelVisible}">
 				
 					<!-- StackPanel for found input -->
-					<StackPanel x:Name="Funds" RelativePanel.AlignLeftWithPanel="True" 
-								Margin="10" Width="200" >
+					<StackPanel x:Name="Funds" HorizontalAlignment="Center"  
+								Margin="10" Width="180" 
+								IsVisible="{Binding IsFundPanelVisible}">
 											
 						<TextBlock FontWeight="Bold">Add funds:</TextBlock>
 						
 						<!-- Funds input and send button -->
 						<StackPanel Orientation="Horizontal">
-							
-							<TextBox x:Name="DepositTextBox" 
-									 Watermark="100 ≥ X ≥ 5000" 
-									 Width="120" HorizontalAlignment="Left"
-									 />
-						
-							<Button Content="Add" Click="OnDepositButtonClick"/>	
-							<!-- DONT FORGET TO ADD ISENABLED -->
+							<TextBox Text="{Binding InputFundsDeposit}"
+									 Watermark="100 ≥ X ≥ 5000"
+									 Width="180" HorizontalAlignment="Left">
+
+								<!-- Adds a submision button to the textbox -->
+								<TextBox.InnerRightContent>
+									<Button Command="{Binding AddFundsDeposit}">Add</Button>
+								</TextBox.InnerRightContent>
+								
+								<!-- Allows Enter key press to send value -->
+								<TextBox.KeyBindings>
+									<KeyBinding Command="{Binding AddFundsDeposit}" Gesture="Enter"/>	
+								</TextBox.KeyBindings>
+
+							</TextBox>				
 							
 						</StackPanel>
-
-						
 						
 					</StackPanel>
 						
-					<StackPanel x:Name="Bets" RelativePanel.RightOf="Funds" Margin="10">
+					<StackPanel x:Name="Bets" HorizontalAlignment="Center" Margin="10" 
+								  IsVisible="{Binding IsBetPanelVisible}">
 						
 						<TextBlock FontWeight="Bold">Bets:</TextBlock>
 						
@@ -73,32 +83,10 @@
 						
 					</StackPanel>
 
-				</RelativePanel>
+				</Panel>
 			</Border>
 		</Panel>
-		<!--<RelativePanel Width="450" Height="200"  HorizontalAlignment="Left">
-			<Border BorderBrush="Black" BorderThickness="1">
-				<StackPanel>
-				
-					--><!-- StackPanel for found input --><!--
-					<StackPanel Margin="5">
-					
-						<TextBlock FontWeight="Bold">Add founds:</TextBlock>
-						<TextBox Watermark="100 ≥ X ≥ 5000" Width="120"/>
 
-					</StackPanel>
-					
-					--><!-- StackPanel for Bet input --><!--
-					<StackPanel Margin="10" Spacing="10">
-
-						<Button HorizontalAlignment="Center" Content="100"/>
-						<Button HorizontalAlignment="Center" Content="300"/>
-						<Button HorizontalAlignment="Center" Content="500"/>
-
-					</StackPanel>
-				</StackPanel>	
-			</Border>
-		</RelativePanel>-->	
 		
 		<StackPanel Background="WhiteSmoke">
 
@@ -120,19 +108,4 @@
 		</StackPanel>
 		
 	</StackPanel>
-	
-	
-<!--	<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-		<TextBlock Text="{Binding StatusMessage}" FontSize="20" Foreground="White" Margin="10"/>
-
-		<Button Content="Deposit 500" Command="{Binding DepositCommand}" CommandParameter="500"/>
-		<Button Content="Bet 100" Command="{Binding BetCommand}" CommandParameter="100"/>
-		<Button Content="Roll Dice" Command="{Binding PlayRoundCommand}"/>
-		<Button Content="Restart Game" Command="{Binding ResetGameCommand}"/>
-
-		<TextBlock Text="Player Score: {Binding PlayerScore}" FontSize="18" Foreground="White"/>
-		<TextBlock Text="NPC Score: {Binding NpcScore}" FontSize="18" Foreground="White"/>
-		<TextBlock Text="Balance: {Binding CurrentBalance}" FontSize="18" Foreground="LightGreen"/>
-		<TextBlock Text="Current Bet: {Binding CurrentBet}" FontSize="18" Foreground="LightBlue"/>
-	</StackPanel> -->
 </UserControl>

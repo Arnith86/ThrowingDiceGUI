@@ -12,15 +12,4 @@ public partial class GameView : UserControl
     {
         InitializeComponent();
     }
-
-    private void OnDepositButtonClick(object? sender, RoutedEventArgs e)
-    {
-        if (DataContext is GameViewModel viewModel)
-        {
-			string input = DepositTextBox.Text;
-            viewModel.SubmitDeposit(input);
-		}
-        
-        
-    }
 }
