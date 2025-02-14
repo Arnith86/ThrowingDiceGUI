@@ -25,20 +25,10 @@ namespace ThrowingDiceGUI.Models
 		// This method will handel all game logic 
 		public Gamelogic()
 		{
-			// Regex pattern, only positive integers
-			//string integerPattern = @"^\d+$";
-			//string oneTwoPattern = @"^[1-2]+$";
-			//string oneTwoThreePattern = @"^[1-3]+$";
 			player = new Player();
 			playerDice = new Dice[] { new Dice(), new Dice() };
 			npcDice = new Dice[] { new Dice(), new Dice() };
 
-			betValues = new Dictionary<int, int>
-			{
-				{1, 100},{2, 300},{3, 500}
-			};
-
-			// Index 1: player, Index 2: Npc
 			roundWinCount = new int[] { 0, 0 };
 		}
 
@@ -50,9 +40,9 @@ namespace ThrowingDiceGUI.Models
 			return true;
 		}
 
-		public bool setBet(int amount)
+		public bool SetAndCheckBet(int amount)
 		{
-			if (amount < 0 || amount > 3) return false;
+			if (amount > CurrentBalance) return false;
 			
 			player.Bet = amount;
 			return true;

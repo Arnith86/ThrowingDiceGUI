@@ -26,7 +26,7 @@ namespace ThrowingDiceGUI.Models
 				{ "Start_Deposit", "How much money do you want do deposit? \nRegister a value between 100 - 5000kr." },
 				{ "Deposit_Error", "Only integer values between 100 and 5000 are permited! \nTry again!" },
 				{ "Current_Balance", "kr in account! \n" },
-				{ "Start_Bet", "How much will you bet? \n 1: 100kr \n 2: 300kr \n 3: 500kr" },
+				{ "Start_Bet", "How much will you bet? \n 100kr, 300kr or 500kr" },
 				{ "Bet_Error_Int", "Provide an integer between 1 and 3!" },
 				{ "Bet_Balance_Error", "Bet exceeds your current funds. Please try again!" },
 				{ "Current_Bet", "kr bet!" },

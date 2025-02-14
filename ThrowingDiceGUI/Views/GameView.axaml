@@ -69,16 +69,16 @@
 					</StackPanel>
 						
 					<StackPanel x:Name="Bets" HorizontalAlignment="Center" Margin="10" 
-								  IsVisible="{Binding IsBetPanelVisible}">
+								IsVisible="{Binding IsBetPanelVisible}">
 						
 						<TextBlock FontWeight="Bold">Bets:</TextBlock>
 						
 						<StackPanel Orientation="Horizontal" Spacing="20">
-							
-							<Button Content="100"/>
-							<Button Content="300"/>
-							<Button Content="500"/>
-							
+
+							<Button Content="100" Command="{Binding InputBetCommand}" CommandParameter="100"/>
+							<Button Content="300" Command="{Binding InputBetCommand}" CommandParameter="300"/>
+							<Button Content="500" Command="{Binding InputBetCommand}" CommandParameter="500"/>
+
 						</StackPanel>
 						
 					</StackPanel>

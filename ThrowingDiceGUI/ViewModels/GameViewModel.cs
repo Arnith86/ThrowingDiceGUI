@@ -41,6 +41,7 @@ namespace ThrowingDiceGUI.ViewModels
 		private bool _isBetPanelVisible;
 		private string? _inputFundsDeposit;
 		private int _currentBalance;
+		private string _inputBet;
 
 		
 
@@ -52,18 +53,20 @@ namespace ThrowingDiceGUI.ViewModels
 			_isInputPanelVisible = false;
 			_isBetPanelVisible = false;
 			_isFundPanelVisible = false;
-		_game = new Gamelogic();
+			_game = new Gamelogic();
 
-			StartGameCommand = ReactiveCommand.Create(StartGame);
-			//DepositCommand = ReactiveCommand.Create(RegisterFunds);
+			StartGameCommand = ReactiveCommand.Create(StartGameMessageAskDeposit);
+			InputBetCommand = ReactiveCommand.Create<string>( bet => 
+			{
+				InputBet = bet;
+				RegisterBet();
+			});
 		}
 
 		public int PlayerScore => _game.PlayerScore; // This is shorthand for only getter
 		public int NpcScore => _game.NpcScore;
-		public int CurrentBet => _game.CurrentBet;
 		public ReactiveCommand<Unit, Unit> StartGameCommand { get; }    // Start Game button has been pressed
-																		//public ReactiveCommand<Unit, Unit> DepositCommand { get; }		// New deposit has been registered 
-
+		public ReactiveCommand<string, Unit> InputBetCommand { get; }                                                              //public ReactiveCommand<Unit, Unit> DepositCommand { get; }		// New deposit has been registered 
 
 
 		// Changes the visibility of UI elements
@@ -95,6 +98,8 @@ namespace ThrowingDiceGUI.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _isFundPanelVisible, value);
 		}
 
+
+
 		// Updates the displayed information message 
 		public string Message
 		{
@@ -107,8 +112,9 @@ namespace ThrowingDiceGUI.ViewModels
 		
 		
 		
-		// Starts the game by checking account balance
-		private void StartGame() 
+		// Starts the game
+		// Ask for deposit to funds
+		private void StartGameMessageAskDeposit() 
 		{
 			Message = Messages.Instance.GetMessage(_START_DEPOSIT);
 			IsStartButtonVisible = false;
@@ -116,7 +122,11 @@ namespace ThrowingDiceGUI.ViewModels
 			IsFundPanelVisible = true;
 		}
 
-		
+		// Ask which bet to place
+		private void MessagePlaceBet()
+		{
+			Message = Messages.Instance.GetMessage(_START_BET);
+		}
 
 		public int CurrentBalance
 		{
@@ -124,7 +134,7 @@ namespace ThrowingDiceGUI.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _currentBalance, value);
 		}
 
-		// houses the input value for fund deposit
+		// houses the inputed value for fund deposit
 		public string InputFundsDeposit
 		{
 			get => _inputFundsDeposit;
@@ -139,6 +149,7 @@ namespace ThrowingDiceGUI.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _isBetPanelVisible, value);
 		}
 
+
 		// Registers deposit to funds
 		public void AddFundsDeposit()
 		{
@@ -148,11 +159,40 @@ namespace ThrowingDiceGUI.ViewModels
 				CurrentBalance = depositAmount;
 				IsFundPanelVisible = false;
 				IsBetPanelVisible = true;
-
+				MessagePlaceBet();
 			}
 			else
 			{
 				Message = Messages.Instance.GetMessage(_DEPOSIT_ERROR);
+			}
+		}
+
+		public int CurrentBet
+		{
+			get => _game.CurrentBet;
+			set => this.RaiseAndSetIfChanged(ref _currentBalance, value);
+		}
+
+		// houses the inputed value for fund deposit
+		public string InputBet
+		{
+			get => _inputBet;
+			set => this.RaiseAndSetIfChanged(ref _inputBet, value);
+		}
+
+
+
+		// Registers deposit to funds
+		public void RegisterBet()
+		{
+			// Converts string to int and checks if bet exceed funds
+			if (int.TryParse(_inputBet, out int betAmount) && _game.SetAndCheckBet(betAmount))
+			{
+				CurrentBet = betAmount;
+			}
+			else
+			{
+				Message = Messages.Instance.GetMessage(_BET_BALANCE_ERROR);
 			}
 		}
 	}
