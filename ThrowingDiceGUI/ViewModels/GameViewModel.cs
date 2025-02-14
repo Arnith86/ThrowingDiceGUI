@@ -182,7 +182,7 @@ namespace ThrowingDiceGUI.ViewModels
 
 
 
-		// Registers deposit to funds
+		// Registers chosen bet
 		public void RegisterBet()
 		{
 			// Converts string to int and checks if bet exceed funds
