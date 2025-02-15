@@ -20,6 +20,7 @@ namespace ThrowingDiceGUI.ViewModels
 		static string _BET_ERROR_INT = "Bet_Error_Int";
 		static string _CURRENT_BET = "Current_Bet";
 		static string _BET_BALANCE_ERROR = "Bet_Balance_Error";
+		static string _THROW_DIE = "Throw_Die";
 		static string _NEW_THROW = "New_Throw";
 		static string _SHOW_DIE = "Show_Die";
 		static string _PLAYER_ROUND_WIN = "Player_Round_Win";
@@ -41,6 +42,7 @@ namespace ThrowingDiceGUI.ViewModels
 		private bool _isBetPanelVisible;
 		private string? _inputFundsDeposit;
 		private int _currentBalance;
+		private int _currentBet;
 		private string _inputBet;
 
 		
@@ -108,10 +110,7 @@ namespace ThrowingDiceGUI.ViewModels
 		}
 
 		
-
-		
-		
-		
+				
 		// Starts the game
 		// Ask for deposit to funds
 		private void StartGameMessageAskDeposit() 
@@ -169,8 +168,8 @@ namespace ThrowingDiceGUI.ViewModels
 
 		public int CurrentBet
 		{
-			get => _game.CurrentBet;
-			set => this.RaiseAndSetIfChanged(ref _currentBalance, value);
+			get => _currentBet;
+			set => this.RaiseAndSetIfChanged(ref _currentBet, value);
 		}
 
 		// houses the inputed value for fund deposit
@@ -189,11 +188,18 @@ namespace ThrowingDiceGUI.ViewModels
 			if (int.TryParse(_inputBet, out int betAmount) && _game.SetAndCheckBet(betAmount))
 			{
 				CurrentBet = betAmount;
+				Message = Messages.Instance.GetMessage(_THROW_DIE); 
 			}
 			else
 			{
 				Message = Messages.Instance.GetMessage(_BET_BALANCE_ERROR);
 			}
+		}
+
+
+		private void StartRound()
+		{
+
 		}
 	}
 }

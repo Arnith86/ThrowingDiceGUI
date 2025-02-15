@@ -12,7 +12,6 @@ namespace ThrowingDiceGUI.Models
 		private Player player;
 		private Dice[] playerDice;
 		private Dice[] npcDice;
-		private Dictionary<int, int> betValues;
 		private int[] roundWinCount;
 
 

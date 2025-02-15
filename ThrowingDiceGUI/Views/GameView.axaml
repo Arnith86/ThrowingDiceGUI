@@ -78,6 +78,7 @@
 							<Button Content="100" Command="{Binding InputBetCommand}" CommandParameter="100"/>
 							<Button Content="300" Command="{Binding InputBetCommand}" CommandParameter="300"/>
 							<Button Content="500" Command="{Binding InputBetCommand}" CommandParameter="500"/>
+							
 
 						</StackPanel>
 						
@@ -88,6 +89,46 @@
 		</Panel>
 
 		
+		<!-- Panel with Player and NPC dice -->
+		<StackPanel>
+			
+			<!-- Throw button -->
+			<StackPanel HorizontalAlignment="Center"
+						Margin="10">
+				<Button Content="Throw"/> <!-- DONT FORGET BINDINGS-->
+			</StackPanel>
+			
+			<!-- Player and NPC Dice, in two seperate panals -->
+			<Grid Margin="10">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*"/> <!-- 50% -->
+					<ColumnDefinition Width="*"/> <!-- 50% -->
+				</Grid.ColumnDefinitions>
+
+				<!--Player dice-->
+				<StackPanel Grid.Column="0"
+							Spacing="10">
+					<TextBlock HorizontalAlignment="Center" TextDecorations="Underline" FontWeight="Bold">
+						Player
+					</TextBlock>
+					<Image Height="100" Width="100" Source="avares://ThrowingDiceGUI/Assets/dice (1).png"/> <!-- DONT FORGET Dynamic BINDINGS-->
+					<Image Height="100" Width="100" Source="avares://ThrowingDiceGUI/Assets/dice (1).png"/> <!-- DONT FORGET Dynamic BINDINGS-->
+				</StackPanel>
+
+				<!--NPC dice-->
+				<StackPanel Grid.Column="1" Spacing="10">
+					<TextBlock HorizontalAlignment="Center" TextDecorations="Underline" FontWeight="Bold">
+						NPC
+					</TextBlock>
+					<Image Height="100" Width="100" Source="avares://ThrowingDiceGUI/Assets/dice (2).png"/> <!-- DONT FORGET Dynamic BINDINGS-->
+					<Image Height="100" Width="100" Source="avares://ThrowingDiceGUI/Assets/dice (2).png"/> <!-- DONT FORGET Dynamic BINDINGS-->
+				</StackPanel>
+			</Grid>
+			
+		</StackPanel>
+		
+		
+		<!-- Panel that displays messages to the player -->
 		<StackPanel Background="WhiteSmoke">
 
 			<!-- Welcome message -->
