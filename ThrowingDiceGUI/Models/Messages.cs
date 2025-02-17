@@ -29,7 +29,7 @@ namespace ThrowingDiceGUI.Models
 				{ "Bet_Balance_Error", "Bet exceeds your current funds. Please try again!" },
 				{ "Throw_Die", "Press \"Throw\" to start the round!"},
 				{ "Show_Die", "\nResults of throw:" },
-				{ "New_Throw", "This round ended in a draw. Press a button to throw the dices!\n" },
+				{ "New_Throw", "This round ended in a draw. Press \"Throw\" to try again!\n" },
 				{ "Button_Press", "Press a button to throw the dices!\n" },
 				{ "Player_Round_Win", "You won this round!\n" },
 				{ "Npc_Round_Win", "You lost this round!\n" },

@@ -6,6 +6,8 @@ using System.Reactive;
 using System.Text;
 using System.Threading.Tasks;
 using ThrowingDiceGUI.Models;
+using Avalonia.Platform;
+using Avalonia.Media.Imaging;
 
 namespace ThrowingDiceGUI.ViewModels
 {
@@ -44,12 +46,18 @@ namespace ThrowingDiceGUI.ViewModels
 		private int _currentBalance;
 		private int _currentBet;
 		private string _inputBet;
-
+		private Bitmap _playerDiceImage1;
+		private Bitmap _playerDiceImage2;
+		private Bitmap _npcDiceImage1;
+		private Bitmap _npcDiceImage2;
 		
 
 
+
+
 		public GameViewModel()
-		{
+		{	
+			// Sets the initial settings
 			_message = Messages.Instance.GetMessage(_WELCOME);
 			_isStartButtonVisible = true;
 			_isInputPanelVisible = false;
@@ -57,19 +65,23 @@ namespace ThrowingDiceGUI.ViewModels
 			_isFundPanelVisible = false;
 			_game = new Gamelogic();
 
+			// Display initial values
+			updateDiceImages();
+
 			StartGameCommand = ReactiveCommand.Create(StartGameMessageAskDeposit);
 			InputBetCommand = ReactiveCommand.Create<string>( bet => 
 			{
 				InputBet = bet;
 				RegisterBet();
 			});
+			ThrowCommand = ReactiveCommand.Create(StartRound);
 		}
 
 		public int PlayerScore => _game.PlayerScore; // This is shorthand for only getter
 		public int NpcScore => _game.NpcScore;
 		public ReactiveCommand<Unit, Unit> StartGameCommand { get; }    // Start Game button has been pressed
-		public ReactiveCommand<string, Unit> InputBetCommand { get; }                                                              //public ReactiveCommand<Unit, Unit> DepositCommand { get; }		// New deposit has been registered 
-
+		public ReactiveCommand<string, Unit> InputBetCommand { get; }   
+		public ReactiveCommand<Unit, Unit> ThrowCommand { get; }
 
 		// Changes the visibility of UI elements
 		// Start Button
@@ -178,6 +190,34 @@ namespace ThrowingDiceGUI.ViewModels
 			get => _inputBet;
 			set => this.RaiseAndSetIfChanged(ref _inputBet, value);
 		}
+		
+		
+		
+		// binding and updating of the Dice UI elements
+		public Bitmap PlayerDiceImage1
+		{
+			get => _playerDiceImage1;
+			set => this.RaiseAndSetIfChanged(ref _playerDiceImage1, value);
+		}
+
+		public Bitmap PlayerDiceImage2
+		{
+			get => _playerDiceImage2;
+			set => this.RaiseAndSetIfChanged(ref _playerDiceImage2, value);
+		}
+
+		public Bitmap NpcDiceImage1
+		{
+			get => _npcDiceImage1;
+			set => this.RaiseAndSetIfChanged(ref _npcDiceImage1, value);
+		}
+
+		public Bitmap NpcDiceImage2
+		{
+			get => _npcDiceImage2;
+			set => this.RaiseAndSetIfChanged(ref _npcDiceImage2, value);
+		}
+
 
 
 
@@ -196,10 +236,30 @@ namespace ThrowingDiceGUI.ViewModels
 			}
 		}
 
-
+		// Initiates a throw of every die 
 		private void StartRound()
 		{
+			_game.ThrowDiceSet(_game.PlayerDice);
+			_game.ThrowDiceSet(_game.NpcDice);
+			_game.PlayerDice = _game.SorByDescending(_game.PlayerDice);
+			_game.NpcDice = _game.SorByDescending(_game.NpcDice);
+			
+			updateDiceImages();
+			
+			if (_game.CheckIdenticalDiceSet(_game.PlayerDice, _game.NpcDice))
+			{
+				Message = Messages.Instance.GetMessage(_NEW_THROW);
+			} 
 
+		}
+
+		private void updateDiceImages()
+		{
+			PlayerDiceImage1 = new Bitmap(AssetLoader.Open(new Uri(_game.PlayerDice[0].DiceImagePath)));
+			PlayerDiceImage2 = new Bitmap(AssetLoader.Open(new Uri(_game.PlayerDice[1].DiceImagePath)));
+
+			NpcDiceImage1 = new Bitmap(AssetLoader.Open(new Uri(_game.NpcDice[0].DiceImagePath)));
+			NpcDiceImage2 = new Bitmap(AssetLoader.Open(new Uri(_game.NpcDice[1].DiceImagePath)));
 		}
 	}
 }
