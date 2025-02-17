@@ -10,17 +10,22 @@ namespace ThrowingDiceGUI.Models
 	class Gamelogic
 	{
 		private Player _Player;
+		private Dice[] _PlayerDice;
+		private Dice[] _NpcDice;
 		private int[] roundWinCount;
-		public Dice[] _NpcDice
-		{
-			get => _NpcDice;
-			private set => _NpcDice = value;
-		}
-		public Dice[] _PlayerDice
+		
+		public Dice[] PlayerDice
 		{
 			get => _PlayerDice;
-			private set => _PlayerDice = value;
-		} 
+			set => _PlayerDice = value;
+		}
+
+		public Dice[] NpcDice
+		{
+			get => _NpcDice;
+			set => _NpcDice = value;
+		}
+		 
 
 		public int CurrentBalance => _Player.Deposit;
 		public int CurrentBet => _Player.Bet;
@@ -223,53 +228,35 @@ namespace ThrowingDiceGUI.Models
 		{
 			int playerHighest = 0;
 			int npcHighest = 0;
-
-
-			do
+						
+			playerHighest = playerDice[0].DiceValue;
+			npcHighest = npcDice[0].DiceValue;
+							
+			// Highest valued dice of both players equal, use the other die
+			if (playerDice[0].DiceValue == npcDice[0].DiceValue)
 			{
-				ThrowDiceSet(playerDice);
-				ThrowDiceSet(npcDice);
-
-				playerDice = SorByDescending(playerDice);
-				npcDice = SorByDescending(npcDice);
-
-
-				playerHighest = playerDice[0].DiceValue;
-				npcHighest = npcDice[0].DiceValue;
-
-				// Handles instances where highest dice or all pairs are equal
-				if (playerDice[0].DiceValue == npcDice[0].DiceValue &&
-					playerDice[1].DiceValue == npcDice[1].DiceValue)
-				{
-					// Both pair of dice are equal, perform a new throw 
-					// !!!!!!!!!!!!!!!!!! Must be handled with UI ----------	
-					// wait for buttonpress ------- HOW? 
-					Console.ReadKey();
-					continue;
-
-				}
-
-				// Highest valued dice of both players equal, use the other die
-				else if (playerDice[0].DiceValue == npcDice[0].DiceValue)
-				{
-					playerHighest = playerDice[1].DiceValue;
-					npcHighest = npcDice[1].DiceValue;
-				}
-				
-			} while (playerHighest == npcHighest);
-
+				playerHighest = playerDice[1].DiceValue;
+				npcHighest = npcDice[1].DiceValue;
+			}
+		
 			// Has player won?
 			return playerHighest > npcHighest;
 		}
 
+		// Check if dice set are identical (they must be sorted first)
+		public bool CheckIdenticalDiceSet(Dice[] playerDice, Dice[] npcDice)
+		{
+			return (playerDice[0].DiceValue == npcDice[0].DiceValue && playerDice[1].DiceValue == npcDice[1].DiceValue);	
+		}
+
 		// Sort the array with highest valued element first 
-		private Dice[] SorByDescending(Dice[] dices)
+		public Dice[] SorByDescending(Dice[] dices)
 		{
 			return dices.OrderByDescending(n => n.DiceValue).ToArray();
 		}
 
 		// Throws both dices 
-		private Dice[] ThrowDiceSet(Dice[] dices)
+		public Dice[] ThrowDiceSet(Dice[] dices)
 		{
 			foreach (Dice dice in dices)
 			{
