@@ -9,24 +9,32 @@ namespace ThrowingDiceGUI.Models
 {
 	class Gamelogic
 	{
-		private Player player;
-		private Dice[] playerDice;
-		private Dice[] npcDice;
+		private Player _Player;
 		private int[] roundWinCount;
+		public Dice[] _NpcDice
+		{
+			get => _NpcDice;
+			private set => _NpcDice = value;
+		}
+		public Dice[] _PlayerDice
+		{
+			get => _PlayerDice;
+			private set => _PlayerDice = value;
+		} 
 
-
-		public int CurrentBalance => player.Deposit;
-		public int CurrentBet => player.Bet;
+		public int CurrentBalance => _Player.Deposit;
+		public int CurrentBet => _Player.Bet;
 		public int PlayerScore => roundWinCount[0];
 		public int NpcScore => roundWinCount[1];
+		 
 		private bool betRegistered; // still needed? 
 
 		// This method will handel all game logic 
 		public Gamelogic()
 		{
-			player = new Player();
-			playerDice = new Dice[] { new Dice(), new Dice() };
-			npcDice = new Dice[] { new Dice(), new Dice() };
+			_Player = new Player();
+			_PlayerDice = new Dice[] { new Dice(), new Dice() };
+			_NpcDice = new Dice[] { new Dice(), new Dice() };
 
 			roundWinCount = new int[] { 0, 0 };
 		}
@@ -35,7 +43,7 @@ namespace ThrowingDiceGUI.Models
 		{
 			if (amount < 100 || amount > 5000) return false; 
 			
-			player.Deposit = amount;
+			_Player.Deposit = amount;
 			return true;
 		}
 
@@ -43,7 +51,7 @@ namespace ThrowingDiceGUI.Models
 		{
 			if (amount > CurrentBalance) return false;
 			
-			player.Bet = amount;
+			_Player.Bet = amount;
 			return true;
 		}
 
