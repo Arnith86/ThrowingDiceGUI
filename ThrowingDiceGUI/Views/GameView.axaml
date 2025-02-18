@@ -110,8 +110,8 @@
 					<TextBlock HorizontalAlignment="Center" TextDecorations="Underline" FontWeight="Bold">
 						Player
 					</TextBlock>
-					<Image Height="100" Width="100" Source="{Binding PlayerDiceImage1}"/> <!-- DONT FORGET Dynamic BINDINGS-->
-					<Image Height="100" Width="100" Source="{Binding PlayerDiceImage2}"/> <!-- DONT FORGET Dynamic BINDINGS-->
+					<Image Height="100" Width="100" Source="{Binding PlayerDiceImage1}"/> 
+					<Image Height="100" Width="100" Source="{Binding PlayerDiceImage2}"/> 
 				</StackPanel>
 
 				<!--NPC dice-->
@@ -119,8 +119,8 @@
 					<TextBlock HorizontalAlignment="Center" TextDecorations="Underline" FontWeight="Bold">
 						NPC
 					</TextBlock>
-					<Image Height="100" Width="100" Source="{Binding NpcDiceImage1}"/> <!-- DONT FORGET Dynamic BINDINGS-->
-					<Image Height="100" Width="100" Source="{Binding NpcDiceImage2}"/> <!-- DONT FORGET Dynamic BINDINGS-->
+					<Image Height="100" Width="100" Source="{Binding NpcDiceImage1}"/> 
+					<Image Height="100" Width="100" Source="{Binding NpcDiceImage2}"/> 
 				</StackPanel>
 			</Grid>
 			

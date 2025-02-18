@@ -42,10 +42,12 @@ namespace ThrowingDiceGUI.ViewModels
 		private bool _isInputPanelVisible;
 		private bool _isFundPanelVisible;
 		private bool _isBetPanelVisible;
-		private string? _inputFundsDeposit;
 		private int _currentBalance;
+		private string? _inputFundsDeposit;
 		private int _currentBet;
 		private string _inputBet;
+		private int _playerScore;
+		private int _npcScore;
 		private Bitmap _playerDiceImage1;
 		private Bitmap _playerDiceImage2;
 		private Bitmap _npcDiceImage1;
@@ -69,20 +71,49 @@ namespace ThrowingDiceGUI.ViewModels
 			updateDiceImages();
 
 			StartGameCommand = ReactiveCommand.Create(StartGameMessageAskDeposit);
+			
 			InputBetCommand = ReactiveCommand.Create<string>( bet => 
 			{
 				InputBet = bet;
 				RegisterBet();
 			});
+
 			ThrowCommand = ReactiveCommand.Create(StartRound);
+
+			// Subscribes to current results, when player or npc reach 2 wins game ends.
+			this.WhenAnyValue(GameViewModel => GameViewModel.PlayerScore, GameViewModel => GameViewModel.NpcScore).
+				Subscribe(scores =>
+				{
+					if (scores.Item1 == 2) // Player Wins
+					{
+						Message = Messages.Instance.GetMessage(_PLAYER_GAME_WIN);
+						_game.CurrentBalance =+ (CurrentBet * 2); 
+						
+					}
+					else if (scores.Item2 == 2)
+					{
+						Message = Messages.Instance.GetMessage(_NPC_GAME_WIN);
+						
+					}
+				});
 		}
 
-		public int PlayerScore => _game.PlayerScore; // This is shorthand for only getter
-		public int NpcScore => _game.NpcScore;
 		public ReactiveCommand<Unit, Unit> StartGameCommand { get; }    // Start Game button has been pressed
 		public ReactiveCommand<string, Unit> InputBetCommand { get; }   
 		public ReactiveCommand<Unit, Unit> ThrowCommand { get; }
 
+		public int PlayerScore
+		{
+			get => _playerScore;
+			set => this.RaiseAndSetIfChanged(ref _playerScore, value) ;
+		}
+
+		public int NpcScore
+		{
+			get => _npcScore;
+			set => this.RaiseAndSetIfChanged(ref _npcScore, value);
+		}
+	
 		// Changes the visibility of UI elements
 		// Start Button
 		public bool IsStartButtonVisible
@@ -141,7 +172,7 @@ namespace ThrowingDiceGUI.ViewModels
 
 		public int CurrentBalance
 		{
-			get => _game.CurrentBalance;
+			get => _currentBalance;
 			set => this.RaiseAndSetIfChanged(ref _currentBalance, value);
 		}
 
@@ -228,6 +259,7 @@ namespace ThrowingDiceGUI.ViewModels
 			if (int.TryParse(_inputBet, out int betAmount) && _game.SetAndCheckBet(betAmount))
 			{
 				CurrentBet = betAmount;
+				CurrentBalance = _game.CurrentBalance;
 				Message = Messages.Instance.GetMessage(_THROW_DIE); 
 			}
 			else
@@ -236,7 +268,8 @@ namespace ThrowingDiceGUI.ViewModels
 			}
 		}
 
-		// Initiates a throw of every die 
+		// Initiates a new round
+		// throws all dices and evaluates results 
 		private void StartRound()
 		{
 			_game.ThrowDiceSet(_game.PlayerDice);
@@ -245,11 +278,22 @@ namespace ThrowingDiceGUI.ViewModels
 			_game.NpcDice = _game.SorByDescending(_game.NpcDice);
 			
 			updateDiceImages();
-			
+
+			// Both player and npc dice are equal, a new throw will be conducted 
 			if (_game.CheckIdenticalDiceSet(_game.PlayerDice, _game.NpcDice))
 			{
 				Message = Messages.Instance.GetMessage(_NEW_THROW);
-			} 
+			}
+			else if (_game.RoundEvaluation(_game.PlayerDice, _game.NpcDice))
+			{
+				Message = Messages.Instance.GetMessage(_PLAYER_ROUND_WIN);
+				PlayerScore++;
+			}
+			else
+			{
+				Message = Messages.Instance.GetMessage(_NPC_ROUND_WIN);
+				NpcScore++;
+			}
 
 		}
 
@@ -260,6 +304,13 @@ namespace ThrowingDiceGUI.ViewModels
 
 			NpcDiceImage1 = new Bitmap(AssetLoader.Open(new Uri(_game.NpcDice[0].DiceImagePath)));
 			NpcDiceImage2 = new Bitmap(AssetLoader.Open(new Uri(_game.NpcDice[1].DiceImagePath)));
+		}
+
+		private void ResetGameRound()
+		{
+			PlayerScore = 0;
+			NpcScore = 0;
+			CurrentBet = 0;
 		}
 	}
 }
