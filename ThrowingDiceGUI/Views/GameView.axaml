@@ -37,7 +37,8 @@
 		<!-- Funds and bet inputs -->
 		<Panel>
 			<Border BorderBrush="Black" BorderThickness="1">
-				<Panel IsVisible="{Binding IsInputPanelVisible}">
+				<Panel>
+				<!--<Panel IsVisible="{Binding IsInputPanelVisible}">-->
 				
 					<!-- StackPanel for found input -->
 					<StackPanel x:Name="Funds" HorizontalAlignment="Center"  
@@ -75,15 +76,20 @@
 						
 						<StackPanel Orientation="Horizontal" Spacing="20">
 
-							<Button Content="100" Command="{Binding InputBetCommand}" CommandParameter="100"/>
-							<Button Content="300" Command="{Binding InputBetCommand}" CommandParameter="300"/>
-							<Button Content="500" Command="{Binding InputBetCommand}" CommandParameter="500"/>
-							
-
+							<Button IsEnabled="{Binding BetButtonsEnabled}" Content="100" Command="{Binding InputBetCommand}" CommandParameter="100"/>
+							<Button IsEnabled="{Binding BetButtonsEnabled}" Content="300" Command="{Binding InputBetCommand}" CommandParameter="300"/>
+							<Button IsEnabled="{Binding BetButtonsEnabled}" Content="500" Command="{Binding InputBetCommand}" CommandParameter="500"/>
+						
 						</StackPanel>
 						
 					</StackPanel>
 
+					<StackPanel x:Name="NewRound" 
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center"
+								IsVisible="{Binding IsNewRoundButtonVisible}">
+						<Button Content="New Round"></Button>
+					</StackPanel>
 				</Panel>
 			</Border>
 		</Panel>
@@ -94,7 +100,9 @@
 			
 			<!-- Throw button -->
 			<StackPanel HorizontalAlignment="Center" Margin="10">
-				<Button Content="Throw" Command="{Binding ThrowCommand}"/> <!-- DONT FORGET BINDINGS-->
+				<Button Content="Throw" 
+						Command="{Binding ThrowCommand}"
+						IsVisible="{Binding IsThrowButtonVisible}"/> 
 			</StackPanel>
 			
 			<!-- Player and NPC Dice, in two seperate panals -->

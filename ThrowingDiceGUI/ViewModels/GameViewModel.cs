@@ -42,6 +42,10 @@ namespace ThrowingDiceGUI.ViewModels
 		private bool _isInputPanelVisible;
 		private bool _isFundPanelVisible;
 		private bool _isBetPanelVisible;
+		private bool _isThrowButtonVisible;
+		private bool _isNewRoundButtonVisible;
+		private bool _isRoundStarted;
+		private bool _betButtonsEnabled;
 		private int _currentBalance;
 		private string? _inputFundsDeposit;
 		private int _currentBet;
@@ -61,10 +65,15 @@ namespace ThrowingDiceGUI.ViewModels
 		{	
 			// Sets the initial settings
 			_message = Messages.Instance.GetMessage(_WELCOME);
-			_isStartButtonVisible = true;
-			_isInputPanelVisible = false;
-			_isBetPanelVisible = false;
-			_isFundPanelVisible = false;
+
+			IsStartButtonVisible = true;
+			IsInputPanelVisible = false;
+			IsBetPanelVisible = false;
+			IsFundPanelVisible = false;
+			IsThrowButtonVisible = false;
+			IsNewRoundButtonVisible = false;
+			BetButtonsEnabled = true; 
+
 			_game = new Gamelogic();
 
 			// Display initial values
@@ -82,20 +91,34 @@ namespace ThrowingDiceGUI.ViewModels
 
 			// Subscribes to current results, when player or npc reach 2 wins game ends.
 			this.WhenAnyValue(GameViewModel => GameViewModel.PlayerScore, GameViewModel => GameViewModel.NpcScore).
-				Subscribe(scores =>
+			Subscribe(scores =>
+			{
+				if (scores.Item1 == 2) // Player Wins
 				{
-					if (scores.Item1 == 2) // Player Wins
+					IsThrowButtonVisible = false;
+					IsNewRoundButtonVisible = true;
+					Message = Messages.Instance.GetMessage(_PLAYER_GAME_WIN);
+					_game.CurrentBalance = +(CurrentBet * 2);
+				}
+				else if (scores.Item2 == 2)
+				{
+					IsThrowButtonVisible = false;
+					IsNewRoundButtonVisible = true;
+					Message = Messages.Instance.GetMessage(_NPC_GAME_WIN);
+				}
+			});
+
+
+			this.WhenAnyValue(GameViewModel => GameViewModel.IsRoundStarted).Subscribe(
+				isRoundStarted =>
+				{
+					if (isRoundStarted)
 					{
-						Message = Messages.Instance.GetMessage(_PLAYER_GAME_WIN);
-						_game.CurrentBalance =+ (CurrentBet * 2); 
-						
+						BetButtonsEnabled = false;
 					}
-					else if (scores.Item2 == 2)
-					{
-						Message = Messages.Instance.GetMessage(_NPC_GAME_WIN);
-						
-					}
-				});
+				}
+			);
+
 		}
 
 		public ReactiveCommand<Unit, Unit> StartGameCommand { get; }    // Start Game button has been pressed
@@ -142,7 +165,26 @@ namespace ThrowingDiceGUI.ViewModels
 			get => _isFundPanelVisible;
 			set => this.RaiseAndSetIfChanged(ref _isFundPanelVisible, value);
 		}
+		
+		// Dice throw button 
+		public bool IsThrowButtonVisible
+		{
+			get => _isThrowButtonVisible;
+			set => this.RaiseAndSetIfChanged(ref _isThrowButtonVisible, value);
+		}
+		// Start new round button
+		public bool IsNewRoundButtonVisible
+		{
+			get => _isNewRoundButtonVisible;
+			set => this.RaiseAndSetIfChanged(ref _isNewRoundButtonVisible, value);
+		}
 
+		// Disables the ability to bet when a game is started 
+		public bool BetButtonsEnabled
+		{
+			get => _betButtonsEnabled;
+			set => this.RaiseAndSetIfChanged(ref _betButtonsEnabled, value);
+		}
 
 
 		// Updates the displayed information message 
@@ -183,6 +225,13 @@ namespace ThrowingDiceGUI.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _inputFundsDeposit, value);
 		}
 
+
+		// When a round is started the bet buttons will be disabled
+		public bool IsRoundStarted
+		{
+			get => _isRoundStarted;
+			set => this.RaiseAndSetIfChanged(ref _isRoundStarted, value);
+		}
 
 		// Changes if founds can be added or not ----------------------!! ! Dont know how yet though...
 		public bool IsfoundsHigherThen100
@@ -261,6 +310,7 @@ namespace ThrowingDiceGUI.ViewModels
 				CurrentBet = betAmount;
 				CurrentBalance = _game.CurrentBalance;
 				Message = Messages.Instance.GetMessage(_THROW_DIE); 
+				IsThrowButtonVisible = true;
 			}
 			else
 			{
@@ -272,6 +322,8 @@ namespace ThrowingDiceGUI.ViewModels
 		// throws all dices and evaluates results 
 		private void StartRound()
 		{
+			IsThrowButtonVisible = false;
+			IsRoundStarted = true; // when true, bet buttons are disabled
 			_game.ThrowDiceSet(_game.PlayerDice);
 			_game.ThrowDiceSet(_game.NpcDice);
 			_game.PlayerDice = _game.SorByDescending(_game.PlayerDice);
@@ -295,6 +347,7 @@ namespace ThrowingDiceGUI.ViewModels
 				NpcScore++;
 			}
 
+			if (PlayerScore != 2 && NpcScore != 2) IsThrowButtonVisible = true;  
 		}
 
 		private void updateDiceImages()
