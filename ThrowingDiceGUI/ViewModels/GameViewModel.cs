@@ -97,18 +97,20 @@ namespace ThrowingDiceGUI.ViewModels
 				{
 					IsThrowButtonVisible = false;
 					IsNewRoundButtonVisible = true;
+					IsBetPanelVisible = false;
 					Message = Messages.Instance.GetMessage(_PLAYER_GAME_WIN);
 					_game.CurrentBalance = +(CurrentBet * 2);
 				}
-				else if (scores.Item2 == 2)
+				else if (scores.Item2 == 2) // Npc Wins
 				{
 					IsThrowButtonVisible = false;
 					IsNewRoundButtonVisible = true;
+					IsBetPanelVisible = false;
 					Message = Messages.Instance.GetMessage(_NPC_GAME_WIN);
 				}
 			});
 
-
+			// Disables the bet buttons after first throw of new game 
 			this.WhenAnyValue(GameViewModel => GameViewModel.IsRoundStarted).Subscribe(
 				isRoundStarted =>
 				{

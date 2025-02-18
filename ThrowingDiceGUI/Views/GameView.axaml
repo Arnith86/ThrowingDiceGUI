@@ -35,13 +35,14 @@
 
 		<!-- Contains all player game inputs -->
 		<!-- Funds and bet inputs -->
-		<Panel>
+		<Panel Height="80">
 			<Border BorderBrush="Black" BorderThickness="1">
 				<Panel>
 				<!--<Panel IsVisible="{Binding IsInputPanelVisible}">-->
 				
 					<!-- StackPanel for found input -->
-					<StackPanel x:Name="Funds" HorizontalAlignment="Center"  
+					<StackPanel x:Name="Funds" 
+								HorizontalAlignment="Center"  
 								Margin="10" Width="180" 
 								IsVisible="{Binding IsFundPanelVisible}">
 											
@@ -69,7 +70,9 @@
 						
 					</StackPanel>
 						
-					<StackPanel x:Name="Bets" HorizontalAlignment="Center" Margin="10" 
+					<StackPanel x:Name="Bets" 
+								HorizontalAlignment="Center" 
+								Margin="10" 
 								IsVisible="{Binding IsBetPanelVisible}">
 						
 						<TextBlock FontWeight="Bold">Bets:</TextBlock>
@@ -85,6 +88,7 @@
 					</StackPanel>
 
 					<StackPanel x:Name="NewRound" 
+								Margin="10" 
 								HorizontalAlignment="Center"
 								VerticalAlignment="Center"
 								IsVisible="{Binding IsNewRoundButtonVisible}">
