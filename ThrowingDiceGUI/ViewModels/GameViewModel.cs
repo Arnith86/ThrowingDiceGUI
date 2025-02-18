@@ -79,7 +79,7 @@ namespace ThrowingDiceGUI.ViewModels
 			// Display initial values
 			updateDiceImages();
 
-			StartGameCommand = ReactiveCommand.Create(StartGameMessageAskDeposit);
+			StartGameCommand = ReactiveCommand.Create(AskForDeposit);
 			
 			InputBetCommand = ReactiveCommand.Create<string>( bet => 
 			{
@@ -88,6 +88,8 @@ namespace ThrowingDiceGUI.ViewModels
 			});
 
 			ThrowCommand = ReactiveCommand.Create(StartRound);
+
+			NewRoundCommand = ReactiveCommand.Create(NewRound);
 
 			// Subscribes to current results, when player or npc reach 2 wins game ends.
 			this.WhenAnyValue(GameViewModel => GameViewModel.PlayerScore, GameViewModel => GameViewModel.NpcScore).
@@ -99,7 +101,7 @@ namespace ThrowingDiceGUI.ViewModels
 					IsNewRoundButtonVisible = true;
 					IsBetPanelVisible = false;
 					Message = Messages.Instance.GetMessage(_PLAYER_GAME_WIN);
-					_game.CurrentBalance = +(CurrentBet * 2);
+					CurrentBalance = _game.CurrentBalance += (CurrentBet * 2);
 				}
 				else if (scores.Item2 == 2) // Npc Wins
 				{
@@ -122,10 +124,14 @@ namespace ThrowingDiceGUI.ViewModels
 			);
 
 		}
-
-		public ReactiveCommand<Unit, Unit> StartGameCommand { get; }    // Start Game button has been pressed
-		public ReactiveCommand<string, Unit> InputBetCommand { get; }   
+		// Start Game button has been pressed
+		public ReactiveCommand<Unit, Unit> StartGameCommand { get; }    
+		// New bet input recived 
+		public ReactiveCommand<string, Unit> InputBetCommand { get; }	   
+		// Throw button pressed
 		public ReactiveCommand<Unit, Unit> ThrowCommand { get; }
+		// New round button pressed
+		public ReactiveCommand<Unit, Unit> NewRoundCommand { get; }
 
 		public int PlayerScore
 		{
@@ -200,7 +206,7 @@ namespace ThrowingDiceGUI.ViewModels
 				
 		// Starts the game
 		// Ask for deposit to funds
-		private void StartGameMessageAskDeposit() 
+		private void AskForDeposit() 
 		{
 			Message = Messages.Instance.GetMessage(_START_DEPOSIT);
 			IsStartButtonVisible = false;
@@ -211,6 +217,8 @@ namespace ThrowingDiceGUI.ViewModels
 		// Ask which bet to place
 		private void MessagePlaceBet()
 		{
+			IsBetPanelVisible = true;
+			BetButtonsEnabled = true;
 			Message = Messages.Instance.GetMessage(_START_BET);
 		}
 
@@ -251,7 +259,6 @@ namespace ThrowingDiceGUI.ViewModels
 			{
 				CurrentBalance = depositAmount;
 				IsFundPanelVisible = false;
-				IsBetPanelVisible = true;
 				MessagePlaceBet();
 			}
 			else
@@ -361,11 +368,22 @@ namespace ThrowingDiceGUI.ViewModels
 			NpcDiceImage2 = new Bitmap(AssetLoader.Open(new Uri(_game.NpcDice[1].DiceImagePath)));
 		}
 
-		private void ResetGameRound()
+		private void NewRound()
 		{
 			PlayerScore = 0;
 			NpcScore = 0;
 			CurrentBet = 0;
+			IsNewRoundButtonVisible = false;
+
+			if (CurrentBalance < 100)
+			{
+				AskForDeposit();
+			}
+			else
+			{
+				MessagePlaceBet();
+			}
+
 		}
 	}
 }

@@ -92,7 +92,7 @@
 								HorizontalAlignment="Center"
 								VerticalAlignment="Center"
 								IsVisible="{Binding IsNewRoundButtonVisible}">
-						<Button Content="New Round"></Button>
+						<Button Content="New Round" Command="{Binding NewRoundCommand}"></Button>
 					</StackPanel>
 				</Panel>
 			</Border>
