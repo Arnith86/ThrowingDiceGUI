@@ -290,7 +290,7 @@ namespace ThrowingDiceGUI.ViewModels
 		}
 
 		// Ask which bet to place
-		private void MessagePlaceBet()
+		private void AskForPlaceBet()
 		{
 			IsBetPanelVisible = true;
 			BetButtonsEnabled = true;
