@@ -14,27 +14,29 @@ namespace ThrowingDiceGUI.ViewModels
 {
 	public class GameViewModel : ViewModelBase
 	{
-	
-		static string _WELCOME = "Welcome";
-		static string _START_DEPOSIT = "Start_Deposit";
-		static string _DEPOSIT_ERROR = "Deposit_Error";
-		static string _CURRENT_BALANCE = "Current_Balance";
-		static string _START_BET = "Start_Bet";
-		static string _BET_ERROR_INT = "Bet_Error_Int";
-		static string _CURRENT_BET = "Current_Bet";
-		static string _BET_BALANCE_ERROR = "Bet_Balance_Error";
-		static string _THROW_DIE = "Throw_Die";
-		static string _NEW_THROW = "New_Throw";
-		static string _SHOW_DIE = "Show_Die";
-		static string _PLAYER_ROUND_WIN = "Player_Round_Win";
-		static string _NPC_ROUND_WIN = "Npc_Round_Win";
-		static string _PLAYER_GAME_WIN = "Player_Game_Win";
-		static string _NPC_GAME_WIN = "Npc_Game_Win";
-		static string _BUTTON_PRESS = "Button_Press";
-		static string _CONTINUE = "Continue";
-		static string _FOUNDS_ADDED = "Founds_Added";
-		static string _YES_NO_ERROR = "Yes_No_Error";
-		static string _END_GAME = "End_Game";
+
+		private static readonly Regex InputFundsRegex = new Regex(@"^\d+$");
+
+		private static string _WELCOME = "Welcome";
+		private static string _START_DEPOSIT = "Start_Deposit";
+		private static string _DEPOSIT_ERROR = "Deposit_Error";
+		private static string _CURRENT_BALANCE = "Current_Balance";
+		private static string _START_BET = "Start_Bet";
+		private static string _BET_ERROR_INT = "Bet_Error_Int";
+		private static string _CURRENT_BET = "Current_Bet";
+		private static string _BET_BALANCE_ERROR = "Bet_Balance_Error";
+		private static string _THROW_DIE = "Throw_Die";
+		private static string _NEW_THROW = "New_Throw";
+		private static string _SHOW_DIE = "Show_Die";
+		private static string _PLAYER_ROUND_WIN = "Player_Round_Win";
+		private static string _NPC_ROUND_WIN = "Npc_Round_Win";
+		private static string _PLAYER_GAME_WIN = "Player_Game_Win";
+		private static string _NPC_GAME_WIN = "Npc_Game_Win";
+		private static string _BUTTON_PRESS = "Button_Press";
+		private static string _CONTINUE = "Continue";
+		private static string _FOUNDS_ADDED = "Founds_Added";
+		private static string _YES_NO_ERROR = "Yes_No_Error";
+		private static string _END_GAME = "End_Game";
 
 
 		private readonly Gamelogic _game;
@@ -205,23 +207,7 @@ namespace ThrowingDiceGUI.ViewModels
 
 		
 				
-		// Starts the game
-		// Ask for deposit to funds
-		private void AskForDeposit() 
-		{
-			Message = Messages.Instance.GetMessage(_START_DEPOSIT);
-			IsStartButtonVisible = false;
-			IsInputPanelVisible = true;
-			IsFundPanelVisible = true;
-		}
-
-		// Ask which bet to place
-		private void MessagePlaceBet()
-		{
-			IsBetPanelVisible = true;
-			BetButtonsEnabled = true;
-			Message = Messages.Instance.GetMessage(_START_BET);
-		}
+		
 
 		public int CurrentBalance
 		{
@@ -251,23 +237,7 @@ namespace ThrowingDiceGUI.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _isBetPanelVisible, value);
 		}
 
-
-		// Registers deposit to funds
-		public void AddFundsDeposit()
-		{
-			// Converts string to int and checks if input is between 100 and 5000
-			if (int.TryParse(_inputFundsDeposit, out int depositAmount) && _game.SetAndCheckDeposit(depositAmount))
-			{
-				CurrentBalance = depositAmount;
-				IsFundPanelVisible = false;
-				MessagePlaceBet();
-			}
-			else
-			{
-				Message = Messages.Instance.GetMessage(_DEPOSIT_ERROR);
-			}
-		}
-
+		
 		public int CurrentBet
 		{
 			get => _currentBet;
@@ -309,13 +279,45 @@ namespace ThrowingDiceGUI.ViewModels
 		}
 
 
+		// Starts the game
+		// Ask for deposit to funds
+		private void AskForDeposit()
+		{
+			Message = Messages.Instance.GetMessage(_START_DEPOSIT);
+			IsStartButtonVisible = false;
+			IsInputPanelVisible = true;
+			IsFundPanelVisible = true;
+		}
 
+		// Ask which bet to place
+		private void MessagePlaceBet()
+		{
+			IsBetPanelVisible = true;
+			BetButtonsEnabled = true;
+			Message = Messages.Instance.GetMessage(_START_BET);
+		}
+
+		// Registers deposit to funds
+		public void AddFundsDeposit()
+		{
+			// Converts string to int and checks if input is between 100 and 5000
+			if (int.TryParse(InputFundsDeposit, out int depositAmount) && _game.SetAndCheckDeposit(depositAmount))
+			{
+				CurrentBalance = depositAmount;
+				IsFundPanelVisible = false;
+				MessagePlaceBet();
+			}
+			else
+			{
+				Message = Messages.Instance.GetMessage(_DEPOSIT_ERROR);
+			}
+		}
 
 		// Registers chosen bet
 		public void RegisterBet()
 		{
 			// Converts string to int and checks if bet exceed funds
-			if (int.TryParse(_inputBet, out int betAmount) && _game.SetAndCheckBet(betAmount))
+			if (int.TryParse(InputBet, out int betAmount) && _game.SetAndCheckBet(betAmount))
 			{
 				CurrentBet = betAmount;
 				CurrentBalance = _game.CurrentBalance;
