@@ -290,7 +290,7 @@ namespace ThrowingDiceGUI.ViewModels
 		}
 
 		// Ask which bet to place
-		private void MessagePlaceBet()
+		private void AskForPlaceBet()
 		{
 			IsBetPanelVisible = true;
 			BetButtonsEnabled = true;
@@ -305,7 +305,7 @@ namespace ThrowingDiceGUI.ViewModels
 			{
 				CurrentBalance = depositAmount;
 				IsFundPanelVisible = false;
-				MessagePlaceBet();
+				AskForPlaceBet();
 			}
 			else
 			{
@@ -384,7 +384,7 @@ namespace ThrowingDiceGUI.ViewModels
 			}
 			else
 			{
-				MessagePlaceBet();
+				AskForPlaceBet();
 			}
 
 		}
