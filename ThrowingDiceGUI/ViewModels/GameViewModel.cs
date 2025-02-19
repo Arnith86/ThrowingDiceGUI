@@ -9,6 +9,7 @@ using ThrowingDiceGUI.Models;
 using Avalonia.Platform;
 using Avalonia.Media.Imaging;
 
+
 namespace ThrowingDiceGUI.ViewModels
 {
 	public class GameViewModel : ViewModelBase
@@ -173,7 +174,7 @@ namespace ThrowingDiceGUI.ViewModels
 			get => _isFundPanelVisible;
 			set => this.RaiseAndSetIfChanged(ref _isFundPanelVisible, value);
 		}
-		
+
 		// Dice throw button 
 		public bool IsThrowButtonVisible
 		{

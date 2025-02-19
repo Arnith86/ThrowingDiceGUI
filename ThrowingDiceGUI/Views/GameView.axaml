@@ -50,22 +50,26 @@
 						
 						<!-- Funds input and send button -->
 						<StackPanel Orientation="Horizontal">
-							<TextBox Text="{Binding InputFundsDeposit}"
+							<TextBox Name="FundsTextBox"
+									 Text="{Binding InputFundsDeposit}"
 									 Watermark="100 ≥ X ≥ 5000"
-									 Width="180" HorizontalAlignment="Left">
+									 Width="180" HorizontalAlignment="Left"
+									 Tag="{Binding}"> <!-- Allows passing the ViewModel to the command -->
 
 								<!-- Adds a submision button to the textbox -->
 								<TextBox.InnerRightContent>
 									<Button Command="{Binding AddFundsDeposit}">Add</Button>
 								</TextBox.InnerRightContent>
+							
 								
 								<!-- Allows Enter key press to send value -->
 								<TextBox.KeyBindings>
 									<KeyBinding Command="{Binding AddFundsDeposit}" Gesture="Enter"/>	
 								</TextBox.KeyBindings>
-
-							</TextBox>				
 							
+								
+							</TextBox>
+
 						</StackPanel>
 						
 					</StackPanel>
