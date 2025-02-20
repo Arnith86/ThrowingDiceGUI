@@ -4,14 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Reactive.Subjects;
+using System.Net.Http.Headers;
+using System.Reactive.Linq;
 
 namespace ThrowingDiceGUI.Models
 {
-	class Gamelogic
+	public class GameLogic
 	{
 		private Player player;
 		private Dice[] _playerDice;
 		private Dice[] _npcDice;
+
+
+		// Holds the lates values of balance funds and bet
+		private int _currentFundsValue;
+		private int _betValue; 
+		// A BehaviorSubject holds the latest value and emits it to new subscribers.
+		private BehaviorSubject<int> _currentFundsSubject = new BehaviorSubject<int>(0);
+		private BehaviorSubject<int> _betSubject = new BehaviorSubject<int>(0);
+
+
 		private int[] roundWinCount;
 		
 		public Dice[] PlayerDice
@@ -25,42 +38,58 @@ namespace ThrowingDiceGUI.Models
 			get => _npcDice;
 			set => _npcDice = value;
 		}
-		 
-
-		public int CurrentBalance
-		{
-			get => player.Deposit;
-			set => player.Deposit = value;
-		} 
-		public int CurrentBet => player.Bet;
+				
+		public int CurrentFundsValue => _currentFundsValue;
+		public int BetValue => _betValue; 
 		
 		 
 		private bool betRegistered; // still needed? 
 
 		// This method will handel all game logic 
-		public Gamelogic()
+		public GameLogic()
 		{
 			player = new Player();
 			_playerDice = new Dice[] { new Dice(), new Dice() };
 			_npcDice = new Dice[] { new Dice(), new Dice() };
+			_currentFundsSubject = new BehaviorSubject<int>(_currentFundsValue);
+			_betSubject = new BehaviorSubject<int>(_betValue);
 		}
 
-		public bool SetAndCheckDeposit(int amount)
+		// Expose an IObservable<int> so the ViewModel can subscribe to balance changes.
+		public IObservable<int> CurrentFundsObservable => _currentFundsSubject.AsObservable();
+		public IObservable<int> BetObservable => _betSubject.AsObservable();
+
+		//public bool SetAndCheckDeposit(int amount)
+		//{
+		//	if (amount < 100 || amount > 5000) return false; 
+
+		//	player.Deposit = amount;
+		//	return true;
+		//}
+
+		// Updates Current Funds and notify subscibers 
+		public void UpdateFunds(int amount)
 		{
-			if (amount < 100 || amount > 5000) return false; 
-			
-			player.Deposit = amount;
-			return true;
+			_currentFundsValue = amount;
+			_currentFundsSubject.OnNext(amount);
 		}
 
-		public bool SetAndCheckBet(int amount)
+		public void UpdateBet(int amount)
 		{
-			if (amount > CurrentBalance) return false;
-			
-			//player.Bet = amount;
-			player.Deposit -= amount;
-			return true;
+			_betValue = amount;
+			_betSubject.OnNext(amount);
+			_currentFundsValue -= amount;
+			_currentFundsSubject.OnNext(amount);
 		}
+
+		//public bool SetAndCheckBet(int amount)
+		//{
+		//	if (amount > _currentFundsValue) return false;
+
+		//	//player.Bet = amount;
+		//	player.Deposit -= amount;
+		//	return true;
+		//}
 
 
 		// Handles a single round of dice throws 

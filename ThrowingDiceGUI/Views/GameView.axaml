@@ -26,7 +26,7 @@
 				<TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding NpcScore}"/>
 
 				<TextBlock Grid.Row="1" Grid.Column="3" FontWeight="Bold">Account :</TextBlock>
-				<TextBlock Grid.Row="1" Grid.Column="4" Text="{Binding CurrentBalance}"/>
+				<TextBlock Grid.Row="1" Grid.Column="4" Text="{Binding CurrentFunds}"/>
 				<TextBlock Grid.Row="2" Grid.Column="3" FontWeight="Bold">Bet :</TextBlock>
 				<TextBlock Grid.Row="2" Grid.Column="4" Text="{Binding CurrentBet}"/>
 
@@ -58,13 +58,16 @@
 
 								<!-- Adds a submision button to the textbox -->
 								<TextBox.InnerRightContent>
-									<Button Command="{Binding AddFundsDeposit}">Add</Button>
+									<Button Command="{Binding InputFundDepositCommand}"
+											CommandParameter="{Binding InputFundsDeposit}">Add</Button>
 								</TextBox.InnerRightContent>
 							
 								
 								<!-- Allows Enter key press to send value -->
 								<TextBox.KeyBindings>
-									<KeyBinding Command="{Binding AddFundsDeposit}" Gesture="Enter"/>	
+									<KeyBinding Command="{Binding InputFundDepositCommand}"
+												CommandParameter="{Binding InputFundsDeposit}"
+												Gesture="Enter"/>	
 								</TextBox.KeyBindings>
 							
 								

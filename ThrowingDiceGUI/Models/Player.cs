@@ -18,7 +18,8 @@ namespace ThrowingDiceGUI.Models
 			get => _Deposit;
 			set => _Deposit = value;
 		}
-
+		
+		// IS THIS STILL USED ? 
 		public int Bet
 		{
 			get => _Bet;

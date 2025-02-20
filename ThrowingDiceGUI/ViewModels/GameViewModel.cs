@@ -3,19 +3,28 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ThrowingDiceGUI.Models;
 using Avalonia.Platform;
 using Avalonia.Media.Imaging;
+using ReactiveUI.Validation;
+using ReactiveUI.Validation.Abstractions;
+using System.ComponentModel.DataAnnotations;
+using ReactiveUI.Validation.Extensions;
+using ReactiveUI.Validation.Helpers;
+using System.Reactive.Disposables;
+
+
 
 
 namespace ThrowingDiceGUI.ViewModels
 {
-	public class GameViewModel : ViewModelBase
+	public class GameViewModel : ReactiveValidationObject, IDisposable
 	{
+		private readonly CompositeDisposable _disposables = new CompositeDisposable();
 
-		private static readonly Regex InputFundsRegex = new Regex(@"^\d+$");
+		//private static readonly Regex InputFundsRegex = new Regex(@"^\d+$");
 
 		private static string _WELCOME = "Welcome";
 		private static string _START_DEPOSIT = "Start_Deposit";
@@ -39,7 +48,7 @@ namespace ThrowingDiceGUI.ViewModels
 		private static string _END_GAME = "End_Game";
 
 
-		private readonly Gamelogic _game;
+		private readonly GameLogic _game;
 		private string _message; 
 		private bool _isStartButtonVisible;
 		private bool _isInputPanelVisible;
@@ -49,7 +58,7 @@ namespace ThrowingDiceGUI.ViewModels
 		private bool _isNewRoundButtonVisible;
 		private bool _isRoundStarted;
 		private bool _betButtonsEnabled;
-		private int _currentBalance;
+		private int _currentFunds;
 		private string? _inputFundsDeposit;
 		private int _currentBet;
 		private string _inputBet;
@@ -59,32 +68,55 @@ namespace ThrowingDiceGUI.ViewModels
 		private Bitmap _playerDiceImage2;
 		private Bitmap _npcDiceImage1;
 		private Bitmap _npcDiceImage2;
-		
+
 
 
 
 
 		public GameViewModel()
-		{	
+		{
 			// Sets the initial settings
 			_message = Messages.Instance.GetMessage(_WELCOME);
 
+			//_inputFundsDeposit = "";
 			IsStartButtonVisible = true;
 			IsInputPanelVisible = false;
 			IsBetPanelVisible = false;
 			IsFundPanelVisible = false;
 			IsThrowButtonVisible = false;
 			IsNewRoundButtonVisible = false;
-			BetButtonsEnabled = true; 
+			BetButtonsEnabled = true;
 
-			_game = new Gamelogic();
+			_game = new GameLogic();
 
 			// Display initial values
 			updateDiceImages();
 
+			// Subscribe to balance updates from the GameLogic
+			_game.CurrentFundsObservable.Subscribe(Funds =>
+			{
+				// Update the ViewModel when the balance changes
+				CurrentFunds = Funds;
+			}).DisposeWith(_disposables);
+
 			StartGameCommand = ReactiveCommand.Create(AskForDeposit);
-			
-			InputBetCommand = ReactiveCommand.Create<string>( bet => 
+
+			// Assignes Funds value
+			// CURRENTLY BUGGED INITIALLY ACCEPTS INVALIED VALUE, after that functions fine !!!!!!!!!!!!!!!!!!!!!!!!! 
+			InputFundDepositCommand = ReactiveCommand.Create<string>(deposit =>
+			{
+				InputFundsDeposit = deposit;
+
+				if (this.ValidationContext.IsValid)
+				{
+					_game.UpdateFunds(int.Parse(InputFundsDeposit));
+					IsFundPanelVisible = false;
+					AskForPlaceBet();
+				}
+				
+			});
+
+			InputBetCommand = ReactiveCommand.Create<string>(bet =>
 			{
 				InputBet = bet;
 				RegisterBet();
@@ -104,7 +136,9 @@ namespace ThrowingDiceGUI.ViewModels
 					IsNewRoundButtonVisible = true;
 					IsBetPanelVisible = false;
 					Message = Messages.Instance.GetMessage(_PLAYER_GAME_WIN);
-					CurrentBalance = _game.CurrentBalance += (CurrentBet * 2);
+					//CurrentBalance = _game.CurrentBalance += (CurrentBet * 2);
+					CurrentFunds = _game.CurrentFundsValue + (CurrentBet * 2);
+					_game.UpdateFunds(CurrentFunds);
 				}
 				else if (scores.Item2 == 2) // Npc Wins
 				{
@@ -126,11 +160,24 @@ namespace ThrowingDiceGUI.ViewModels
 				}
 			);
 
+			// Validates inputs
+			this.ValidationRule(
+				GameViewModel => GameViewModel.InputFundsDeposit,
+				inputFundsDeposit => !string.IsNullOrWhiteSpace(inputFundsDeposit) && InputFundsRegex.IsMatch(inputFundsDeposit) &&
+										int.TryParse(inputFundsDeposit, out int depositAmount) && (depositAmount >= 100 && depositAmount <= 5000),
+				"Only integer values between 100 and 5000 are permited!"
+			);
 		}
+
+
+
+
 		// Start Game button has been pressed
 		public ReactiveCommand<Unit, Unit> StartGameCommand { get; }    
 		// New bet input recived 
-		public ReactiveCommand<string, Unit> InputBetCommand { get; }	   
+		public ReactiveCommand<string, Unit> InputBetCommand { get; }
+		// New fund deposit recived
+		public ReactiveCommand<string, Unit> InputFundDepositCommand { get; }
 		// Throw button pressed
 		public ReactiveCommand<Unit, Unit> ThrowCommand { get; }
 		// New round button pressed
@@ -209,10 +256,10 @@ namespace ThrowingDiceGUI.ViewModels
 				
 		
 
-		public int CurrentBalance
+		public int CurrentFunds
 		{
-			get => _currentBalance;
-			set => this.RaiseAndSetIfChanged(ref _currentBalance, value);
+			get => _currentFunds;
+			set => this.RaiseAndSetIfChanged(ref _currentFunds, value);
 		}
 
 		// houses the inputed value for fund deposit
@@ -278,6 +325,11 @@ namespace ThrowingDiceGUI.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _npcDiceImage2, value);
 		}
 
+		// Cleans up all subscriptions when the ViewModel is no longer needed.
+		public void Dispose()
+		{
+			_disposables.Dispose();
+		}
 
 		// Starts the game
 		// Ask for deposit to funds
@@ -297,21 +349,29 @@ namespace ThrowingDiceGUI.ViewModels
 			Message = Messages.Instance.GetMessage(_START_BET);
 		}
 
-		// Registers deposit to funds
-		public void AddFundsDeposit()
-		{
-			// Converts string to int and checks if input is between 100 and 5000
-			if (int.TryParse(InputFundsDeposit, out int depositAmount) && _game.SetAndCheckDeposit(depositAmount))
-			{
-				CurrentBalance = depositAmount;
-				IsFundPanelVisible = false;
-				AskForPlaceBet();
-			}
-			else
-			{
-				Message = Messages.Instance.GetMessage(_DEPOSIT_ERROR);
-			}
-		}
+		//// Registers deposit to funds
+		//public void AddFundsDeposit(int deposit)
+		//{
+		//	CurrentFunds = deposit;
+		//	IsFundPanelVisible = false;
+		//	AskForPlaceBet();
+		//}
+
+		//// Registers deposit to funds
+		//public void AddFundsDeposit()
+		//{
+		//	// Converts string to int and checks if input is between 100 and 5000
+		//	if (int.TryParse(InputFundsDeposit, out int depositAmount) && _game.SetAndCheckDeposit(depositAmount))
+		//	{
+		//		CurrentBalance = depositAmount;
+		//		IsFundPanelVisible = false;
+		//		AskForPlaceBet();
+		//	}
+		//	else
+		//	{
+		//		Message = Messages.Instance.GetMessage(_DEPOSIT_ERROR);
+		//	}
+		//}
 
 		// Registers chosen bet
 		public void RegisterBet()
@@ -320,7 +380,7 @@ namespace ThrowingDiceGUI.ViewModels
 			if (int.TryParse(InputBet, out int betAmount) && _game.SetAndCheckBet(betAmount))
 			{
 				CurrentBet = betAmount;
-				CurrentBalance = _game.CurrentBalance;
+				CurrentFunds = _game.CurrentFundsValue;
 				Message = Messages.Instance.GetMessage(_THROW_DIE); 
 				IsThrowButtonVisible = true;
 			}
@@ -371,6 +431,8 @@ namespace ThrowingDiceGUI.ViewModels
 			NpcDiceImage2 = new Bitmap(AssetLoader.Open(new Uri(_game.NpcDice[1].DiceImagePath)));
 		}
 
+		// Prepers for and starts a new round
+		// If not enough funds, sends to "AskForDeposit" method, otherwise "PlaceBet"
 		private void NewRound()
 		{
 			PlayerScore = 0;
@@ -378,7 +440,7 @@ namespace ThrowingDiceGUI.ViewModels
 			CurrentBet = 0;
 			IsNewRoundButtonVisible = false;
 
-			if (CurrentBalance < 100)
+			if (CurrentFunds < 100)
 			{
 				AskForDeposit();
 			}
