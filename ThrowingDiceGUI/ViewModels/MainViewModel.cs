@@ -1,6 +1,20 @@
-﻿namespace ThrowingDiceGUI.ViewModels;
+﻿using ThrowingDiceGUI.Models;
+
+namespace ThrowingDiceGUI.ViewModels;
 
 public class MainViewModel : ViewModelBase
 {
-    public string Greeting => "Hello World and Welcome to Avalonia!";
+	public GameViewModel GameVM { get; }
+	public FundsDepositViewModel FundsDepositVM { get; }
+	public BetViewModel BetVM { get; }
+	public RoundViewModel RoundVM { get; }
+
+
+	public MainViewModel()
+	{
+		GameVM = new GameViewModel(_gameLogic);
+		FundsDepositVM = new FundsDepositViewModel(_gameLogic);
+		BetVM = new BetViewModel(_gameLogic);
+		RoundVM = new RoundViewModel(_gameLogic);
+	}
 }

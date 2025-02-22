@@ -4,7 +4,7 @@
              x:Class="ThrowingDiceGUI.Views.GameView">
 
 	<UserControl.DataContext>
-		<vm:GameViewModel/>
+		<vm:MainViewModel/>
 	</UserControl.DataContext>
 	
 	
@@ -14,7 +14,8 @@
 		<!-- Round results, usable funds and current bet -->
 		<Border BorderBrush="Black"> 
 			
-			<Grid ShowGridLines="false"
+			<Grid DataContext="{Binding GameVM}"
+				  ShowGridLines="false"
 				  Height="50" Margin="10"
 				  ColumnDefinitions="50, 50, 200, Auto, Auto"
 				  RowDefinitions="Auto, Auto, Auto">
@@ -49,7 +50,8 @@
 						<TextBlock FontWeight="Bold">Add funds:</TextBlock>
 						
 						<!-- Funds input and send button -->
-						<StackPanel Orientation="Horizontal">
+						<StackPanel  DataContext="{Binding FundsDepositVM}"
+									 Orientation="Horizontal">
 							<TextBox Name="FundsTextBox"
 									 Text="{Binding InputFundsDeposit}"
 									 Watermark="100 ≥ X ≥ 5000"

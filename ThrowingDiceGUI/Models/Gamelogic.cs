@@ -18,8 +18,8 @@ namespace ThrowingDiceGUI.Models
 
 
 		// Holds the lates values of balance funds and bet
-		private int _currentFundsValue;
-		private int _betValue; 
+		private int _currentFundsValue = 0;
+		private int _betValue = 0; 
 		// A BehaviorSubject holds the latest value and emits it to new subscribers.
 		private BehaviorSubject<int> _currentFundsSubject = new BehaviorSubject<int>(0);
 		private BehaviorSubject<int> _betSubject = new BehaviorSubject<int>(0);
