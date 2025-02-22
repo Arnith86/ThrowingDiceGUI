@@ -61,6 +61,8 @@ namespace ThrowingDiceGUI.ViewModels
 			);
 		}
 
+
+
 		// New fund deposit recived
 		public ReactiveCommand<string, Unit> InputFundDepositCommand { get; }
 

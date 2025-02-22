@@ -14,22 +14,21 @@
 		<!-- Round results, usable funds and current bet -->
 		<Border BorderBrush="Black"> 
 			
-			<Grid DataContext="{Binding GameVM}"
-				  ShowGridLines="false"
+			<Grid ShowGridLines="false"
 				  Height="50" Margin="10"
 				  ColumnDefinitions="50, 50, 200, Auto, Auto"
 				  RowDefinitions="Auto, Auto, Auto">
 
 				<TextBlock TextDecorations="Underline" FontWeight="Bold">Result</TextBlock>
 				<TextBlock Grid.Row="1" Grid.Column="0">Player :</TextBlock>
-				<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding PlayerScore}"/>
+				<TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding GameVM.PlayerScore}"/>
 				<TextBlock Grid.Row="2" Grid.Column="0">NPC :</TextBlock>
-				<TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding NpcScore}"/>
+				<TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding GameVM.NpcScore}"/>
 
 				<TextBlock Grid.Row="1" Grid.Column="3" FontWeight="Bold">Account :</TextBlock>
-				<TextBlock Grid.Row="1" Grid.Column="4" Text="{Binding CurrentFunds}"/>
+				<TextBlock Grid.Row="1" Grid.Column="4" Text="{Binding FundsDepositVM.CurrentFunds}"/>
 				<TextBlock Grid.Row="2" Grid.Column="3" FontWeight="Bold">Bet :</TextBlock>
-				<TextBlock Grid.Row="2" Grid.Column="4" Text="{Binding CurrentBet}"/>
+				<TextBlock Grid.Row="2" Grid.Column="4" Text="{Binding BetVM.CurrentBet}"/>
 
 			</Grid>
 		</Border>
