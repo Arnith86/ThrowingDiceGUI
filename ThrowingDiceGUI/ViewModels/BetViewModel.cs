@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Text;
 using System.Threading.Tasks;
 using ThrowingDiceGUI.Models;
@@ -18,6 +19,7 @@ namespace ThrowingDiceGUI.ViewModels
 		private int _currentBet;
 		private string _inputBet;
 
+		private readonly CompositeDisposable _disposables = new CompositeDisposable();
 
 		// New bet input recived 
 		public ReactiveCommand<string, Unit> InputBetCommand { get; }
@@ -75,6 +77,12 @@ namespace ThrowingDiceGUI.ViewModels
 		{
 			get => _inputBet;
 			set => this.RaiseAndSetIfChanged(ref _inputBet, value);
+		}
+
+		// Cleans up all subscriptions when the ViewModel is no longer needed.
+		public void Dispose()
+		{
+			_disposables.Dispose();
 		}
 	}
 }

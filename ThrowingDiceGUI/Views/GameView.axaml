@@ -78,7 +78,7 @@
 						
 					</StackPanel>
 						
-					<StackPanel x:Name="Bets" 
+					<StackPanel DataContext="{Binding BetVM}" x:Name="Bets" 
 								HorizontalAlignment="Center" 
 								Margin="10" 
 								IsVisible="{Binding IsBetPanelVisible}">
@@ -108,7 +108,7 @@
 
 		
 		<!-- Panel with Player and NPC dice -->
-		<StackPanel>
+		<StackPanel DataContext="{Binding RoundVM}">
 			
 			<!-- Throw button -->
 			<StackPanel HorizontalAlignment="Center" Margin="10">
@@ -148,7 +148,7 @@
 		
 		
 		<!-- Panel that displays messages to the player -->
-		<StackPanel Background="WhiteSmoke">
+		<StackPanel  DataContext="{Binding GameVM}" Background="WhiteSmoke">
 
 			<!-- Welcome message -->
 			<TextBlock	HorizontalAlignment="Center"
