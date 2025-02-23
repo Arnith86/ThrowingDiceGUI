@@ -52,6 +52,11 @@ namespace ThrowingDiceGUI.ViewModels
 				CurrentFunds = Funds;
 			}).DisposeWith(_disposables);
 
+			_gameLogic.IsFundPanelVisíbleObservable.Subscribe(isFundPanelVisible =>
+			{
+				IsFundPanelVisible = isFundPanelVisible; 
+			}).DisposeWith(_disposables);
+
 			// Validates inputs
 			this.ValidationRule(
 				FundsDepositViewModel => FundsDepositViewModel.InputFundsDeposit,

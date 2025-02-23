@@ -48,7 +48,6 @@ namespace ThrowingDiceGUI.ViewModels
 		private readonly GameLogic _gameLogic;
 		private string _message; 
 		private bool _isStartButtonVisible;
-		private bool _isInputPanelVisible;
 		private bool _isNewRoundButtonVisible;
 		private int _playerScore;
 		private int _npcScore;
@@ -64,9 +63,6 @@ namespace ThrowingDiceGUI.ViewModels
 		public GameViewModel(GameLogic gameLogic)
 		{
 			// Sets the initial settings
-
-			IsStartButtonVisible = true;
-			IsInputPanelVisible = false;
 			IsNewRoundButtonVisible = false;
 	
 			_gameLogic = gameLogic;
@@ -77,7 +73,12 @@ namespace ThrowingDiceGUI.ViewModels
 			_gameLogic.MessageObservable.Subscribe( message =>
 				Message = message
 			).DisposeWith(_disposables);
+			
+			_gameLogic.IsStartButtonVisibleObservable.Subscribe(isStartButtonVisible =>
+				IsStartButtonVisible = isStartButtonVisible
+			).DisposeWith(_disposables);
 
+	
 			// Subscribes to current results, when player or npc reach 2 wins game ends.
 			this.WhenAnyValue(GameViewModel => GameViewModel.PlayerScore, GameViewModel => GameViewModel.NpcScore).
 			Subscribe(scores =>
@@ -139,14 +140,6 @@ namespace ThrowingDiceGUI.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _isStartButtonVisible, value);
 		}
 
-		// The whole Input panel 
-		public bool IsInputPanelVisible
-		{
-			get => _isInputPanelVisible;
-			set => this.RaiseAndSetIfChanged(ref _isInputPanelVisible, value);
-		}
-		
-		
 		// Start new round button
 		public bool IsNewRoundButtonVisible
 		{

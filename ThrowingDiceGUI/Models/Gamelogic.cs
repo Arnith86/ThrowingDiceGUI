@@ -23,22 +23,22 @@ namespace ThrowingDiceGUI.Models
 		private int _currentFundsValue = 0;
 		private int _betValue = 0;
 
-		private string _messageValue;
+		private string _messageValue = "";
 
 		// Visibility boolean
 		private bool _isStartButtonVisible;
-
+		private bool _isFundPanelVisible;
 
 
 		// A BehaviorSubject holds the latest value and emits it to new subscribers.
 		private BehaviorSubject<int> _currentFundsSubject = new BehaviorSubject<int>(0);
 		private BehaviorSubject<int> _betSubject = new BehaviorSubject<int>(0);
 		private BehaviorSubject<string> _messageSubject = new BehaviorSubject<string>("");
-		
+		private BehaviorSubject<bool> _isStartButtonVisibleSubject = new BehaviorSubject<bool>(true);
+		private BehaviorSubject<bool> _isFundPanelVisibleSubject = new BehaviorSubject<bool>(true);
 
 
-		
-		
+
 		public Dice[] PlayerDice
 		{
 			get => _playerDice;
@@ -58,8 +58,18 @@ namespace ThrowingDiceGUI.Models
 			get => _messageValue;
 			set => _messageValue = value;
 		} 
-		
-		 
+		public bool IsStartButtonVisible
+		{
+			get => _isStartButtonVisible;
+			set => _isStartButtonVisible = value;
+		}
+
+		public bool IsFundPanelVisible
+		{
+			get => _isFundPanelVisible;
+			set => _isFundPanelVisible = value;
+		}
+
 		private bool betRegistered; // still needed? 
 
 		// This method will handel all game logic 
@@ -67,21 +77,24 @@ namespace ThrowingDiceGUI.Models
 		{
 			// Displays welcome message on application start
 			UpdateMessage(_WELCOME);
-
+			IsStartButtonVisible = true;
+			
 			player = new Player();
 			_playerDice = new Dice[] { new Dice(), new Dice() };
 			_npcDice = new Dice[] { new Dice(), new Dice() };
 			_currentFundsSubject = new BehaviorSubject<int>(_currentFundsValue);
 			_betSubject = new BehaviorSubject<int>(_betValue);
 			_messageSubject = new BehaviorSubject<string>(_messageValue);
+			_isStartButtonVisibleSubject = new BehaviorSubject<bool>(_isStartButtonVisible);
+			_isFundPanelVisibleSubject = new BehaviorSubject<bool>(_isFundPanelVisible);
 		}
 
 		// Expose an IObservable<int> so the ViewModel can subscribe to balance changes.
 		public IObservable<int> CurrentFundsObservable => _currentFundsSubject.AsObservable();
 		public IObservable<int> BetObservable => _betSubject.AsObservable();
 		public IObservable<string> MessageObservable => _messageSubject.AsObservable();
-
-	
+		public IObservable<bool> IsStartButtonVisibleObservable => _isStartButtonVisibleSubject.AsObservable();
+		public IObservable<bool> IsFundPanelVisíbleObservable => _isFundPanelVisibleSubject.AsObservable();
 
 		// Updates Values and notify subscibers 
 		public void UpdateMessage(string message)
@@ -103,6 +116,18 @@ namespace ThrowingDiceGUI.Models
 			_currentFundsSubject.OnNext(amount);
 		}
 
+		public void UpdateIsStartButtonVisible(bool tf)
+		{
+			IsStartButtonVisible = tf;
+			_isStartButtonVisibleSubject.OnNext(IsStartButtonVisible);
+		}
+
+		public void UpdateIsFundPanelVisible(bool tf)
+		{
+			IsFundPanelVisible = tf;
+			_isFundPanelVisibleSubject.OnNext(IsFundPanelVisible);
+		}
+
 		//public bool SetAndCheckBet(int amount)
 		//{
 		//	if (amount > _currentFundsValue) return false;
@@ -112,7 +137,7 @@ namespace ThrowingDiceGUI.Models
 		//	return true;
 		//}
 		// Prepers for and starts a new round
-		
+
 		// If not enough funds, sends to "AskForDeposit" method, otherwise "PlaceBet"
 		public void NewRound()
 		{
@@ -137,9 +162,8 @@ namespace ThrowingDiceGUI.Models
 		public void AskForDeposit()
 		{
 			UpdateMessage(_START_DEPOSIT);
-			//IsStartButtonVisible = false;
-			//IsInputPanelVisible = true;
-			//FundsDeposit IsFundPanelVisible = true; // Figure out how to seperate ( put in FundsDepositViewModel)
+			UpdateIsStartButtonVisible(false);
+			UpdateIsFundPanelVisible(true);
 		}
 
 		// Ask which bet to place

@@ -38,7 +38,6 @@
 		<Panel Height="80">
 			<Border BorderBrush="Black" BorderThickness="1">
 				<Panel>
-				<!--<Panel IsVisible="{Binding IsInputPanelVisible}">-->
 				
 					<!-- StackPanel for found input -->
 					<StackPanel x:Name="Funds" 
