@@ -44,7 +44,7 @@
 					<StackPanel x:Name="Funds" 
 								HorizontalAlignment="Center"  
 								Margin="10" Width="180" 
-								IsVisible="{Binding IsFundPanelVisible}">
+								IsVisible="{Binding FundsDepositVM.IsFundPanelVisible}">
 											
 						<TextBlock FontWeight="Bold">Add funds:</TextBlock>
 						

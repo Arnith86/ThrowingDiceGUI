@@ -13,6 +13,7 @@ using ReactiveUI.Validation.Abstractions;
 using System.ComponentModel.DataAnnotations;
 using ReactiveUI.Validation.Extensions;
 using ReactiveUI.Validation.Helpers;
+using System.Reactive.Disposables;
 
 
 
@@ -22,8 +23,8 @@ namespace ThrowingDiceGUI.ViewModels
 {
 	public class GameViewModel : ReactiveValidationObject
 	{
-		private static string _WELCOME = "Welcome";
-		private static string _START_DEPOSIT = "Start_Deposit";
+		private readonly CompositeDisposable _disposables = new CompositeDisposable();
+		
 		private static string _DEPOSIT_ERROR = "Deposit_Error";
 		private static string _CURRENT_BALANCE = "Current_Balance";
 		private static string _START_BET = "Start_Bet";
@@ -63,7 +64,6 @@ namespace ThrowingDiceGUI.ViewModels
 		public GameViewModel(GameLogic gameLogic)
 		{
 			// Sets the initial settings
-			_message = Messages.Instance.GetMessage(_WELCOME);
 
 			IsStartButtonVisible = true;
 			IsInputPanelVisible = false;
@@ -73,6 +73,10 @@ namespace ThrowingDiceGUI.ViewModels
 
 			StartGameCommand = ReactiveCommand.Create(_gameLogic.AskForDeposit);
 			NewRoundCommand = ReactiveCommand.Create(_gameLogic.NewRound);
+
+			_gameLogic.MessageObservable.Subscribe( message =>
+				Message = message
+			).DisposeWith(_disposables);
 
 			// Subscribes to current results, when player or npc reach 2 wins game ends.
 			this.WhenAnyValue(GameViewModel => GameViewModel.PlayerScore, GameViewModel => GameViewModel.NpcScore).

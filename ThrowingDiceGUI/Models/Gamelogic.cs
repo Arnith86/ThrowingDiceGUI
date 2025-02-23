@@ -12,17 +12,29 @@ namespace ThrowingDiceGUI.Models
 {
 	public class GameLogic
 	{
-		private Player player;
+		private static string _START_DEPOSIT = "Start_Deposit";
+		private static string _WELCOME = "Welcome";
+
+		private Player player; // should i keep this? 
 		private Dice[] _playerDice;
 		private Dice[] _npcDice;
 
-
 		// Holds the lates values of balance funds and bet
 		private int _currentFundsValue = 0;
-		private int _betValue = 0; 
+		private int _betValue = 0;
+
+		private string _messageValue;
+
+		// Visibility boolean
+		private bool _isStartButtonVisible;
+
+
+
 		// A BehaviorSubject holds the latest value and emits it to new subscribers.
 		private BehaviorSubject<int> _currentFundsSubject = new BehaviorSubject<int>(0);
 		private BehaviorSubject<int> _betSubject = new BehaviorSubject<int>(0);
+		private BehaviorSubject<string> _messageSubject = new BehaviorSubject<string>("");
+		
 
 
 		
@@ -41,6 +53,11 @@ namespace ThrowingDiceGUI.Models
 				
 		public int CurrentFundsValue => _currentFundsValue;
 		public int BetValue => _betValue; 
+		public string MessageValue
+		{
+			get => _messageValue;
+			set => _messageValue = value;
+		} 
 		
 		 
 		private bool betRegistered; // still needed? 
@@ -48,19 +65,30 @@ namespace ThrowingDiceGUI.Models
 		// This method will handel all game logic 
 		public GameLogic()
 		{
+			// Displays welcome message on application start
+			UpdateMessage(_WELCOME);
+
 			player = new Player();
 			_playerDice = new Dice[] { new Dice(), new Dice() };
 			_npcDice = new Dice[] { new Dice(), new Dice() };
 			_currentFundsSubject = new BehaviorSubject<int>(_currentFundsValue);
 			_betSubject = new BehaviorSubject<int>(_betValue);
+			_messageSubject = new BehaviorSubject<string>(_messageValue);
 		}
 
 		// Expose an IObservable<int> so the ViewModel can subscribe to balance changes.
 		public IObservable<int> CurrentFundsObservable => _currentFundsSubject.AsObservable();
 		public IObservable<int> BetObservable => _betSubject.AsObservable();
+		public IObservable<string> MessageObservable => _messageSubject.AsObservable();
 
 	
-		// Updates Current Funds and notify subscibers 
+
+		// Updates Values and notify subscibers 
+		public void UpdateMessage(string message)
+		{
+			MessageValue = Messages.Instance.GetMessage(message);
+			_messageSubject.OnNext(MessageValue);
+		}
 		public void UpdateFunds(int amount)
 		{
 			_currentFundsValue = amount;
@@ -108,7 +136,7 @@ namespace ThrowingDiceGUI.Models
 		// Ask for deposit to funds
 		public void AskForDeposit()
 		{
-			//Message = Messages.Instance.GetMessage(_START_DEPOSIT);
+			UpdateMessage(_START_DEPOSIT);
 			//IsStartButtonVisible = false;
 			//IsInputPanelVisible = true;
 			//FundsDeposit IsFundPanelVisible = true; // Figure out how to seperate ( put in FundsDepositViewModel)
