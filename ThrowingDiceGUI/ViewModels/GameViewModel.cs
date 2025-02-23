@@ -67,7 +67,7 @@ namespace ThrowingDiceGUI.ViewModels
 	
 			_gameLogic = gameLogic;
 
-			StartGameCommand = ReactiveCommand.Create(_gameLogic.AskForDeposit);
+			StartGameCommand = ReactiveCommand.Create(_gameLogic.NewRound);
 			NewRoundCommand = ReactiveCommand.Create(_gameLogic.NewRound);
 
 			_gameLogic.MessageObservable.Subscribe( message =>
