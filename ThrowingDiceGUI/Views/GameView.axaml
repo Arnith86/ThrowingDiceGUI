@@ -94,7 +94,8 @@
 						
 					</StackPanel>
 
-					<StackPanel x:Name="NewRound" 
+					<StackPanel DataContext="{Binding GameVM}"
+								x:Name="NewRound" 
 								Margin="10" 
 								HorizontalAlignment="Center"
 								VerticalAlignment="Center"

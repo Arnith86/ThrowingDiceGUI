@@ -78,7 +78,10 @@ namespace ThrowingDiceGUI.ViewModels
 				IsStartButtonVisible = isStartButtonVisible
 			).DisposeWith(_disposables);
 
-	
+			_gameLogic.IsNewRoundButtonVisibleObservable.Subscribe(isNewRoundButtonVisible =>
+				IsNewRoundButtonVisible = isNewRoundButtonVisible
+			).DisposeWith(_disposables);
+
 			// Subscribes to current results, when player or npc reach 2 wins game ends.
 			this.WhenAnyValue(GameViewModel => GameViewModel.PlayerScore, GameViewModel => GameViewModel.NpcScore).
 			Subscribe(scores =>

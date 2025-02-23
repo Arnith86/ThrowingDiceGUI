@@ -27,7 +27,9 @@ namespace ThrowingDiceGUI.Models
 
 		// Visibility boolean
 		private bool _isStartButtonVisible;
+		private bool _isNewRoundButtonVisible;
 		private bool _isFundPanelVisible;
+		
 
 
 		// A BehaviorSubject holds the latest value and emits it to new subscribers.
@@ -35,7 +37,8 @@ namespace ThrowingDiceGUI.Models
 		private BehaviorSubject<int> _betSubject = new BehaviorSubject<int>(0);
 		private BehaviorSubject<string> _messageSubject = new BehaviorSubject<string>("");
 		private BehaviorSubject<bool> _isStartButtonVisibleSubject = new BehaviorSubject<bool>(true);
-		private BehaviorSubject<bool> _isFundPanelVisibleSubject = new BehaviorSubject<bool>(true);
+		private BehaviorSubject<bool> _isNewRoundButtonVisibleSubject = new BehaviorSubject<bool> (false);
+		private BehaviorSubject<bool> _isFundPanelVisibleSubject = new BehaviorSubject<bool>(false);
 
 
 
@@ -64,6 +67,12 @@ namespace ThrowingDiceGUI.Models
 			set => _isStartButtonVisible = value;
 		}
 
+		public bool IsNewRoundButtonVisible
+		{
+			get => _isNewRoundButtonVisible;
+			set => _isNewRoundButtonVisible = value;
+		}
+
 		public bool IsFundPanelVisible
 		{
 			get => _isFundPanelVisible;
@@ -77,8 +86,9 @@ namespace ThrowingDiceGUI.Models
 		{
 			// Displays welcome message on application start
 			UpdateMessage(_WELCOME);
-			IsStartButtonVisible = true;
-			
+			UpdateIsStartButtonVisible(true);
+			UpdateIsNewRoundButtonVisible(false);
+
 			player = new Player();
 			_playerDice = new Dice[] { new Dice(), new Dice() };
 			_npcDice = new Dice[] { new Dice(), new Dice() };
@@ -86,6 +96,7 @@ namespace ThrowingDiceGUI.Models
 			_betSubject = new BehaviorSubject<int>(_betValue);
 			_messageSubject = new BehaviorSubject<string>(_messageValue);
 			_isStartButtonVisibleSubject = new BehaviorSubject<bool>(_isStartButtonVisible);
+			_isFundPanelVisibleSubject = new BehaviorSubject<bool>(_isNewRoundButtonVisible);
 			_isFundPanelVisibleSubject = new BehaviorSubject<bool>(_isFundPanelVisible);
 		}
 
@@ -94,6 +105,7 @@ namespace ThrowingDiceGUI.Models
 		public IObservable<int> BetObservable => _betSubject.AsObservable();
 		public IObservable<string> MessageObservable => _messageSubject.AsObservable();
 		public IObservable<bool> IsStartButtonVisibleObservable => _isStartButtonVisibleSubject.AsObservable();
+		public IObservable<bool> IsNewRoundButtonVisibleObservable => _isNewRoundButtonVisibleSubject.AsObservable();
 		public IObservable<bool> IsFundPanelVisíbleObservable => _isFundPanelVisibleSubject.AsObservable();
 
 		// Updates Values and notify subscibers 
@@ -120,6 +132,12 @@ namespace ThrowingDiceGUI.Models
 		{
 			IsStartButtonVisible = tf;
 			_isStartButtonVisibleSubject.OnNext(IsStartButtonVisible);
+		}
+
+		public void UpdateIsNewRoundButtonVisible(bool tf)
+		{
+			IsNewRoundButtonVisible = tf;
+			_isNewRoundButtonVisibleSubject.OnNext(IsNewRoundButtonVisible);
 		}
 
 		public void UpdateIsFundPanelVisible(bool tf)
