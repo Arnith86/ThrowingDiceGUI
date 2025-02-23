@@ -33,8 +33,8 @@ namespace ThrowingDiceGUI.ViewModels
 			// Display initial values
 			updateDiceImages();
 
-			// IMPLEMENT WHEN READY
-			//ThrowCommand = ReactiveCommand.Create(StartRound);
+			// "Throw" button has been pressed
+			ThrowCommand = ReactiveCommand.Create(_gameLogic.StartRound);
 		}
 
 		// Dice throw button 
