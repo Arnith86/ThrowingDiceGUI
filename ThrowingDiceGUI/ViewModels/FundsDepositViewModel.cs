@@ -17,10 +17,12 @@ namespace ThrowingDiceGUI.ViewModels
 {
 	public class FundsDepositViewModel : ReactiveValidationObject, IDisposable
 	{
+		private static string _DEPOSIT_ERROR = "Deposit_Error";
+
 		private readonly GameLogic _gameLogic;
 		private string _inputFundsDeposit;
+		private string _inputErrorText;
 		private int _currentFundsValue;
-
 		private bool _isFundPanelVisible;
 
 		private static readonly Regex InputFundsRegex = new Regex(@"^\d+$");
@@ -29,20 +31,23 @@ namespace ThrowingDiceGUI.ViewModels
 		public FundsDepositViewModel(GameLogic gameLogic) 
 		{
 			_gameLogic = gameLogic;
+			InputErrorText = string.Empty;
 
-			// Assignes Funds value
-			// CURRENTLY BUGGED INITIALLY ACCEPTS INVALIED VALUE, after that functions fine !!!!!!!!!!!!!!!!!!!!!!!!! 
+			// Validates and Assignes Funds value
 			InputFundDepositCommand = ReactiveCommand.Create<string>(deposit =>
 			{
-				InputFundsDeposit = deposit;
-
-				if (this.ValidationContext.IsValid)
+			
+				if (InputFundsRegex.IsMatch(deposit) && int.TryParse(deposit, out int depositAmount) && (depositAmount >= 100 && depositAmount <= 5000))
 				{
-					_gameLogic.UpdateFunds(int.Parse(InputFundsDeposit));
+					_gameLogic.UpdateFunds(depositAmount);
 					IsFundPanelVisible = false;
-					// AskForPlaceBet(); // FIGURE OUT HOW TO DO THIS AFTER REFACTORING
+					_gameLogic.AskForPlaceBet();
+					InputErrorText = string.Empty;
 				}
-
+				else
+				{
+					InputErrorText = Messages.Instance.GetMessage(_DEPOSIT_ERROR);
+				}
 			});
 
 			// Subscribe to balance updates from the GameLogic
@@ -56,20 +61,19 @@ namespace ThrowingDiceGUI.ViewModels
 			{
 				IsFundPanelVisible = isFundPanelVisible; 
 			}).DisposeWith(_disposables);
-
-			// Validates inputs
-			this.ValidationRule(
-				FundsDepositViewModel => FundsDepositViewModel.InputFundsDeposit,
-				inputFundsDeposit => !string.IsNullOrWhiteSpace(inputFundsDeposit) && InputFundsRegex.IsMatch(inputFundsDeposit) &&
-										int.TryParse(inputFundsDeposit, out int depositAmount) && (depositAmount >= 100 && depositAmount <= 5000),
-				"Only integer values between 100 and 5000 are permited!"
-			);
 		}
 
 
 
 		// New fund deposit recived
 		public ReactiveCommand<string, Unit> InputFundDepositCommand { get; }
+
+		// Expose Validation Text for UI Binding
+		public string InputErrorText
+		{
+			get => _inputErrorText;
+			private set => this.RaiseAndSetIfChanged(ref _inputErrorText, value);
+		}
 
 		// Enable or disable FundPanel visibility 
 		public bool IsFundPanelVisible

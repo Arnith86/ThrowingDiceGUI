@@ -32,6 +32,7 @@ namespace ThrowingDiceGUI.Models
 		private bool _isStartButtonVisible;
 		private bool _isNewRoundButtonVisible;
 		private bool _isFundPanelVisible;
+		private bool _isBetPanelVisible;
 
 
 
@@ -44,7 +45,7 @@ namespace ThrowingDiceGUI.Models
 		private BehaviorSubject<bool> _isStartButtonVisibleSubject = new BehaviorSubject<bool>(true);
 		private BehaviorSubject<bool> _isNewRoundButtonVisibleSubject = new BehaviorSubject<bool> (false);
 		private BehaviorSubject<bool> _isFundPanelVisibleSubject = new BehaviorSubject<bool>(false);
-
+		private BehaviorSubject<bool> _isBetPanelVisibleSubject = new BehaviorSubject<bool>(false);
 
 		// Getters and Setters 
 		public Dice[] PlayerDice
@@ -95,6 +96,11 @@ namespace ThrowingDiceGUI.Models
 			get => _isFundPanelVisible;
 			set => _isFundPanelVisible = value;
 		}
+		public bool IsBetPanelVisible
+		{
+			get => _isBetPanelVisible;
+			set => _isBetPanelVisible = value;
+		}
 
 		// This method will handel all game logic 
 		public GameLogic()
@@ -103,6 +109,7 @@ namespace ThrowingDiceGUI.Models
 			UpdateMessage(_WELCOME);
 			UpdateIsStartButtonVisible(true);
 			UpdateIsNewRoundButtonVisible(false);
+			//UpdateIsBetPanelVisible(false);
 
 			player = new Player();
 			_playerDice = new Dice[] { new Dice(), new Dice() };
@@ -113,19 +120,21 @@ namespace ThrowingDiceGUI.Models
 			_betSubject = new BehaviorSubject<int>(_betValue);
 			_messageSubject = new BehaviorSubject<string>(_messageValue);
 			_isStartButtonVisibleSubject = new BehaviorSubject<bool>(_isStartButtonVisible);
-			_isFundPanelVisibleSubject = new BehaviorSubject<bool>(_isNewRoundButtonVisible);
+			_isNewRoundButtonVisibleSubject = new BehaviorSubject<bool>(_isNewRoundButtonVisible);
 			_isFundPanelVisibleSubject = new BehaviorSubject<bool>(_isFundPanelVisible);
+			_isBetPanelVisibleSubject = new BehaviorSubject<bool>(_isBetPanelVisible);
 		}
 
 		// Expose an IObservable<int> so the ViewModel can subscribe to balance changes.
+		public IObservable<int> PlayerScoreObservable => _playerScoreSubject.AsObservable();
+		public IObservable<int> NpcScoreObservable => _npcScoreSubject.AsObservable();
 		public IObservable<int> CurrentFundsObservable => _currentFundsSubject.AsObservable();
 		public IObservable<int> BetObservable => _betSubject.AsObservable();
 		public IObservable<string> MessageObservable => _messageSubject.AsObservable();
 		public IObservable<bool> IsStartButtonVisibleObservable => _isStartButtonVisibleSubject.AsObservable();
 		public IObservable<bool> IsNewRoundButtonVisibleObservable => _isNewRoundButtonVisibleSubject.AsObservable();
 		public IObservable<bool> IsFundPanelVisíbleObservable => _isFundPanelVisibleSubject.AsObservable();
-		public IObservable<int>	PlayerScoreObservable => _playerScoreSubject.AsObservable();
-		public IObservable<int> NpcScoreObservable => _npcScoreSubject.AsObservable();
+		public IObservable<bool> IsBetPanelVisibleObject => _isBetPanelVisibleSubject.AsObservable();
 
 		// Updates Values and notify subscibers 
 		public void UpdateMessage(string message)
@@ -178,6 +187,12 @@ namespace ThrowingDiceGUI.Models
 			_isFundPanelVisibleSubject.OnNext(IsFundPanelVisible);
 		}
 
+		public void UpdateIsBetPanelVisible(bool tf)
+		{
+			IsBetPanelVisible = tf;
+			_isBetPanelVisibleSubject.OnNext(IsBetPanelVisible);
+		}
+
 		//public bool SetAndCheckBet(int amount)
 		//{
 		//	if (amount > _currentFundsValue) return false;
@@ -218,7 +233,7 @@ namespace ThrowingDiceGUI.Models
 		// Ask which bet to place
 		public void AskForPlaceBet()
 		{
-			//IsBetPanelVisible = true;
+			UpdateIsBetPanelVisible(true);
 			//BetButtonsEnabled = true;
 			//Message = Messages.Instance.GetMessage(_START_BET);
 		}

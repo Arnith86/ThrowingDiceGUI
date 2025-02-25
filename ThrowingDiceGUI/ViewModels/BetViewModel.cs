@@ -1,24 +1,30 @@
-﻿using ReactiveUI;
+﻿using Avalonia.Controls;
+using ReactiveUI;
+using ReactiveUI.Validation.Extensions;
 using ReactiveUI.Validation.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ThrowingDiceGUI.Models;
 
 namespace ThrowingDiceGUI.ViewModels
 {
-	public class BetViewModel : ReactiveValidationObject, IDisposable
+	public class BetViewModel : ReactiveObject, IDisposable
 	{
+		private static string _BET_ERROR_INT = "Bet_Error_Int";
+
 		private readonly GameLogic _gameLogic;
 		private bool _isBetPanelVisible;
 		private bool _betButtonsEnabled;
 		private int _currentBet;
-		private string _inputBet;
-
+		private int _inputBet;
+		private string _inputErrorText;
 		private readonly CompositeDisposable _disposables = new CompositeDisposable();
 
 		// New bet input recived 
@@ -29,11 +35,26 @@ namespace ThrowingDiceGUI.ViewModels
 			_gameLogic = gameLogic;
 			IsBetPanelVisible = false;
 			BetButtonsEnabled = true;
+			InputBet = 0;
+			InputErrorText = string.Empty;
 
 			InputBetCommand = ReactiveCommand.Create<string>(bet =>
 			{
-				InputBet = bet;
-				//RegisterBet(); // IMPLÖEMENT THIS LATER 
+				InputBet = int.Parse(bet);
+
+				if (InputBet <= _gameLogic.CurrentFundsValue)
+				{
+					CurrentBet = InputBet;
+					_gameLogic.UpdateBet(CurrentBet);
+					_gameLogic.RegisterBet();
+					InputBet = 0;
+					InputErrorText = string.Empty;
+				}
+				else
+				{
+					InputErrorText ="Bet exceeds your current funds. Please try again!";
+				}
+
 			});
 
 
@@ -48,7 +69,20 @@ namespace ThrowingDiceGUI.ViewModels
 			//		}
 			//	}
 			//);
+
+			_gameLogic.IsBetPanelVisibleObject.Subscribe(isBetPanelVisible =>
+			{
+				IsBetPanelVisible = isBetPanelVisible;
+			}).DisposeWith(_disposables);
+
 		}
+
+		// Expose Validation Text for UI Binding
+		public string InputErrorText
+		{
+			get => _inputErrorText;
+			private set => this.RaiseAndSetIfChanged(ref _inputErrorText, value);
+		} 
 
 		// Bet Input panel
 		public bool IsBetPanelVisible
@@ -73,7 +107,7 @@ namespace ThrowingDiceGUI.ViewModels
 		}
 
 		// houses the inputed value for fund deposit
-		public string InputBet
+		public int InputBet
 		{
 			get => _inputBet;
 			set => this.RaiseAndSetIfChanged(ref _inputBet, value);

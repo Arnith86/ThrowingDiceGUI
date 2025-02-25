@@ -41,56 +41,65 @@
 				
 					<!-- StackPanel for found input -->
 					<StackPanel x:Name="Funds" 
-								HorizontalAlignment="Center"  
-								Margin="10" Width="180" 
-								IsVisible="{Binding FundsDepositVM.IsFundPanelVisible}">
-											
-						<TextBlock FontWeight="Bold">Add funds:</TextBlock>
-						
+								Margin="10" 
+								DataContext="{Binding FundsDepositVM}"
+								IsVisible="{Binding IsFundPanelVisible}"		
+								>
+								
 						<!-- Funds input and send button -->
-						<StackPanel  DataContext="{Binding FundsDepositVM}"
-									 Orientation="Horizontal">
-							<TextBox Name="FundsTextBox"
-									 Text="{Binding InputFundsDeposit}"
-									 Watermark="100 ≥ X ≥ 5000"
-									 Width="180" HorizontalAlignment="Left"
-									 Tag="{Binding}"> <!-- Allows passing the ViewModel to the command -->
-
-								<!-- Adds a submision button to the textbox -->
-								<TextBox.InnerRightContent>
-									<Button Command="{Binding InputFundDepositCommand}"
-											CommandParameter="{Binding InputFundsDeposit}">Add</Button>
-								</TextBox.InnerRightContent>
+						
+							<StackPanel VerticalAlignment="Top" HorizontalAlignment="Center" Orientation="Horizontal">
 							
-								
-								<!-- Allows Enter key press to send value -->
-								<TextBox.KeyBindings>
-									<KeyBinding Command="{Binding InputFundDepositCommand}"
-												CommandParameter="{Binding InputFundsDeposit}"
-												Gesture="Enter"/>	
-								</TextBox.KeyBindings>
+								<TextBlock FontWeight="Bold" VerticalAlignment="Center">Add funds:</TextBlock>
 							
-								
-							</TextBox>
+								<TextBox Name="FundsTextBox" Text="{Binding InputFundsDeposit}"
+										 Watermark="100 ≥ X ≥ 5000" Width="165" 
+										 VerticalAlignment="Center">
 
-						</StackPanel>
+									<!-- Adds a submision button to the textbox -->
+									<TextBox.InnerRightContent>
+										<Button Command="{Binding InputFundDepositCommand}"
+												CommandParameter="{Binding InputFundsDeposit}">Add</Button>
+									</TextBox.InnerRightContent>
+							
+									<!-- Allows Enter key press to send value -->
+									<TextBox.KeyBindings>
+										<KeyBinding Command="{Binding InputFundDepositCommand}"
+													CommandParameter="{Binding InputFundsDeposit}"
+													Gesture="Enter"/>	
+									</TextBox.KeyBindings>
+								</TextBox>
+							</StackPanel>
+
+							<!-- Displays input error when requested deposit is outside established range -->
+							<Panel VerticalAlignment="Bottom" HorizontalAlignment="Center" Height="15">
+								<TextBlock  Foreground="Red" Text="{Binding InputErrorText}" FontSize="12"/>
+							</Panel>
+						
 						
 					</StackPanel>
 						
 					<StackPanel DataContext="{Binding BetVM}" x:Name="Bets" 
-								HorizontalAlignment="Center" 
-								Margin="10" 
+								HorizontalAlignment="Center" VerticalAlignment="Center" 
+								Margin="5"
 								IsVisible="{Binding IsBetPanelVisible}">
 						
-						<TextBlock FontWeight="Bold">Bets:</TextBlock>
-						
-						<StackPanel Orientation="Horizontal" Spacing="20">
+						<!--IsVisible="{Binding IsBetPanelVisible}"-->
+						<StackPanel Orientation="Horizontal" Spacing="20"
+									HorizontalAlignment="Center">
 
+							<TextBlock FontWeight="Bold">Bets:</TextBlock>
+							
 							<Button IsEnabled="{Binding BetButtonsEnabled}" Content="100" Command="{Binding InputBetCommand}" CommandParameter="100"/>
 							<Button IsEnabled="{Binding BetButtonsEnabled}" Content="300" Command="{Binding InputBetCommand}" CommandParameter="300"/>
 							<Button IsEnabled="{Binding BetButtonsEnabled}" Content="500" Command="{Binding InputBetCommand}" CommandParameter="500"/>
 						
 						</StackPanel>
+						
+						<!-- Displays input error when bet exceeds funds  -->
+						<Panel HorizontalAlignment="Center" VerticalAlignment="Bottom" Height="15">
+							<TextBlock  Foreground="Red" Text="{Binding InputErrorText}" FontSize="12"/>
+						</Panel>
 						
 					</StackPanel>
 
@@ -145,7 +154,6 @@
 			</Grid>
 			
 		</StackPanel>
-		
 		
 		<!-- Panel that displays messages to the player -->
 		<StackPanel  DataContext="{Binding GameVM}" Background="WhiteSmoke">

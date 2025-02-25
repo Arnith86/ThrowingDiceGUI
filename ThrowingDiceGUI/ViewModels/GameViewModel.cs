@@ -28,7 +28,6 @@ namespace ThrowingDiceGUI.ViewModels
 		private static string _DEPOSIT_ERROR = "Deposit_Error";
 		private static string _CURRENT_BALANCE = "Current_Balance";
 		private static string _START_BET = "Start_Bet";
-		private static string _BET_ERROR_INT = "Bet_Error_Int";
 		private static string _CURRENT_BET = "Current_Bet";
 		private static string _BET_BALANCE_ERROR = "Bet_Balance_Error";
 		private static string _THROW_DIE = "Throw_Die";
