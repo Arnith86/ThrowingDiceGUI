@@ -7,13 +7,22 @@ using System.Text.RegularExpressions;
 using System.Reactive.Subjects;
 using System.Net.Http.Headers;
 using System.Reactive.Linq;
+using System.Reactive;
+using ReactiveUI;
 
 namespace ThrowingDiceGUI.Models
 {
 	public class GameLogic
 	{
-		private static string _START_DEPOSIT = "Start_Deposit";
 		private static string _WELCOME = "Welcome";
+		private static string _ASK_FOR_DEPOSIT = "Ask_For_Deposit";
+		private static string _ASK_FOR_BET = "Ask_For_Bet";
+		private static string _THROW_DIE = "Throw_Die";
+		private static string _NEW_THROW = "New_Throw";
+		private static string _PLAYER_ROUND_WIN = "Player_Round_Win";
+		private static string _NPC_ROUND_WIN = "Npc_Round_Win";
+		private static string _PLAYER_GAME_WIN = "Player_Game_Win";
+		private static string _NPC_GAME_WIN = "Npc_Game_Win";
 
 		private Player player; // should i keep this? 
 		private Dice[] _playerDice;
@@ -26,6 +35,8 @@ namespace ThrowingDiceGUI.Models
 		private int _currentFundsValue = 0;
 		private int _betValue = 0;
 
+		private bool _isGameRoundStarted;
+
 		private string _messageValue = "";
 
 		// Visibility boolean
@@ -33,7 +44,9 @@ namespace ThrowingDiceGUI.Models
 		private bool _isNewRoundButtonVisible;
 		private bool _isFundPanelVisible;
 		private bool _isBetPanelVisible;
+		private bool _isThrowButtonVisible;
 
+	
 
 
 		// A BehaviorSubject holds the latest value and emits it to new subscribers.
@@ -41,39 +54,25 @@ namespace ThrowingDiceGUI.Models
 		private BehaviorSubject<int> _npcScoreSubject = new BehaviorSubject<int>(0);
 		private BehaviorSubject<int> _currentFundsSubject = new BehaviorSubject<int>(0);
 		private BehaviorSubject<int> _betSubject = new BehaviorSubject<int>(0);
+		private BehaviorSubject<bool> _isGameRoundStartedSubject = new BehaviorSubject<bool>(false);
 		private BehaviorSubject<string> _messageSubject = new BehaviorSubject<string>("");
 		private BehaviorSubject<bool> _isStartButtonVisibleSubject = new BehaviorSubject<bool>(true);
 		private BehaviorSubject<bool> _isNewRoundButtonVisibleSubject = new BehaviorSubject<bool> (false);
 		private BehaviorSubject<bool> _isFundPanelVisibleSubject = new BehaviorSubject<bool>(false);
 		private BehaviorSubject<bool> _isBetPanelVisibleSubject = new BehaviorSubject<bool>(false);
+		private BehaviorSubject<bool> _isThrowButtonVisibleSubject = new BehaviorSubject<bool>(false);
+		
+		private Subject<Unit> _diceThrownSubject = new Subject<Unit>();
 
 		// Getters and Setters 
-		public Dice[] PlayerDice
-		{
-			get => _playerDice;
-			set => _playerDice = value;
-		}
-
-		public Dice[] NpcDice
-		{
-			get => _npcDice;
-			set => _npcDice = value;
-		}
-
-		public int PlayerScore
-		{
-			get => _playerScore;
-			set => _playerScore = value;
-		}
-
-		public int NpcScore
-		{
-			get => _playerScore;
-			set => _playerScore = value;
-		}
-
+		public Dice[] PlayerDice => _playerDice;
+		public Dice[] NpcDice => _npcDice;
+		public int PlayerScore => _playerScore;
+		public int NpcScore => _npcScore;
 		public int CurrentFundsValue => _currentFundsValue;
-		public int BetValue => _betValue; 
+		public int BetValue => _betValue;
+		public bool IsGameRoundStarted => _isGameRoundStarted;
+		
 		public string MessageValue
 		{
 			get => _messageValue;
@@ -102,6 +101,13 @@ namespace ThrowingDiceGUI.Models
 			set => _isBetPanelVisible = value;
 		}
 
+		public bool IsThrowButtonVisible
+		{
+			get => _isThrowButtonVisible;
+			set => _isThrowButtonVisible = value;
+		}
+
+
 		// This method will handel all game logic 
 		public GameLogic()
 		{
@@ -118,11 +124,15 @@ namespace ThrowingDiceGUI.Models
 			_npcScoreSubject = new BehaviorSubject<int>(_npcScore);
 			_currentFundsSubject = new BehaviorSubject<int>(_currentFundsValue);
 			_betSubject = new BehaviorSubject<int>(_betValue);
+			_isGameRoundStartedSubject = new BehaviorSubject<bool>(_isGameRoundStarted);
 			_messageSubject = new BehaviorSubject<string>(_messageValue);
 			_isStartButtonVisibleSubject = new BehaviorSubject<bool>(_isStartButtonVisible);
 			_isNewRoundButtonVisibleSubject = new BehaviorSubject<bool>(_isNewRoundButtonVisible);
 			_isFundPanelVisibleSubject = new BehaviorSubject<bool>(_isFundPanelVisible);
 			_isBetPanelVisibleSubject = new BehaviorSubject<bool>(_isBetPanelVisible);
+			_isThrowButtonVisibleSubject = new BehaviorSubject<bool>(_isThrowButtonVisible);
+
+		
 		}
 
 		// Expose an IObservable<int> so the ViewModel can subscribe to balance changes.
@@ -130,18 +140,17 @@ namespace ThrowingDiceGUI.Models
 		public IObservable<int> NpcScoreObservable => _npcScoreSubject.AsObservable();
 		public IObservable<int> CurrentFundsObservable => _currentFundsSubject.AsObservable();
 		public IObservable<int> BetObservable => _betSubject.AsObservable();
+		public IObservable<bool> IsGameRoundStartedObject => _isGameRoundStartedSubject.AsObservable();
 		public IObservable<string> MessageObservable => _messageSubject.AsObservable();
 		public IObservable<bool> IsStartButtonVisibleObservable => _isStartButtonVisibleSubject.AsObservable();
 		public IObservable<bool> IsNewRoundButtonVisibleObservable => _isNewRoundButtonVisibleSubject.AsObservable();
 		public IObservable<bool> IsFundPanelVisíbleObservable => _isFundPanelVisibleSubject.AsObservable();
 		public IObservable<bool> IsBetPanelVisibleObject => _isBetPanelVisibleSubject.AsObservable();
+		public IObservable<bool> IsThrowButtonVisibleObject => _isThrowButtonVisibleSubject.AsObservable();
+		public IObservable<Unit> DiceThrownObservable => _diceThrownSubject.AsObservable();
 
-		// Updates Values and notify subscibers 
-		public void UpdateMessage(string message)
-		{
-			MessageValue = Messages.Instance.GetMessage(message);
-			_messageSubject.OnNext(MessageValue);
-		}
+
+		// Updates Values and notify subscibers 	
 
 		public void UpdatePlayerScore(int score) 
 		{
@@ -165,8 +174,18 @@ namespace ThrowingDiceGUI.Models
 		{
 			_betValue = amount;
 			_betSubject.OnNext(amount);
-			_currentFundsValue -= amount;
-			_currentFundsSubject.OnNext(amount);
+		}
+
+		public void UpdateIsGameRoundStarted(bool tf)
+		{
+			_isGameRoundStarted = tf;
+			_isGameRoundStartedSubject.OnNext(tf);
+		}
+
+		public void UpdateMessage(string message)
+		{
+			MessageValue = Messages.Instance.GetMessage(message);
+			_messageSubject.OnNext(MessageValue);
 		}
 
 		public void UpdateIsStartButtonVisible(bool tf)
@@ -193,15 +212,13 @@ namespace ThrowingDiceGUI.Models
 			_isBetPanelVisibleSubject.OnNext(IsBetPanelVisible);
 		}
 
-		//public bool SetAndCheckBet(int amount)
-		//{
-		//	if (amount > _currentFundsValue) return false;
+		public void UpdateIsThrowButtonVisible(bool tf)
+		{
+			IsThrowButtonVisible = tf;
+			_isThrowButtonVisibleSubject.OnNext(IsThrowButtonVisible);
+		}
 
-		//	//player.Bet = amount;
-		//	player.Deposit -= amount;
-		//	return true;
-		//}
-		// Prepers for and starts a new round
+		
 
 		// If not enough funds, sends to "AskForDeposit" method, otherwise "PlaceBet"
 		public void NewRound()
@@ -225,7 +242,7 @@ namespace ThrowingDiceGUI.Models
 		// Ask for deposit to funds
 		public void AskForDeposit()
 		{
-			UpdateMessage(_START_DEPOSIT);
+			UpdateMessage(_ASK_FOR_DEPOSIT);
 			UpdateIsStartButtonVisible(false);
 			UpdateIsFundPanelVisible(true);
 		}
@@ -234,83 +251,80 @@ namespace ThrowingDiceGUI.Models
 		public void AskForPlaceBet()
 		{
 			UpdateIsBetPanelVisible(true);
-			//BetButtonsEnabled = true;
-			//Message = Messages.Instance.GetMessage(_START_BET);
+			UpdateIsGameRoundStarted(false);
+			UpdateMessage(_ASK_FOR_BET);
 		}
 
-		//// Registers deposit to funds
-		//public void AddFundsDeposit(int deposit)
-		//{
-		//	CurrentFunds = deposit;
-		//	IsFundPanelVisible = false;
-		//	AskForPlaceBet();
-		//}
-
-		//// Registers deposit to funds
-		//public void AddFundsDeposit()
-		//{
-		//	// Converts string to int and checks if input is between 100 and 5000
-		//	if (int.TryParse(InputFundsDeposit, out int depositAmount) && _game.SetAndCheckDeposit(depositAmount))
-		//	{
-		//		CurrentBalance = depositAmount;
-		//		IsFundPanelVisible = false;
-		//		AskForPlaceBet();
-		//	}
-		//	else
-		//	{
-		//		Message = Messages.Instance.GetMessage(_DEPOSIT_ERROR);
-		//	}
-		//}
-
-		// Registers chosen bet
-		public void RegisterBet()
+		// After successfull registration of bet, sets up for next stage of game
+		public void ABetIsChosen()
 		{
-			//// Converts string to int and checks if bet exceed funds
-			//if (int.TryParse(InputBet, out int betAmount) && _gameLogic.SetAndCheckBet(betAmount))
-			//{
-			//	CurrentBet = betAmount;
-			//	CurrentFunds = _gameLogic.CurrentFundsValue;
-			//	Message = Messages.Instance.GetMessage(_THROW_DIE); 
-			//	IsThrowButtonVisible = true;
-			//}
-			//else
-			//{
-			//	Message = Messages.Instance.GetMessage(_BET_BALANCE_ERROR);
-			//}
+			UpdateMessage(_THROW_DIE);
+			UpdateIsThrowButtonVisible(true);
+		}
+
+		private void BetIsRegistered()
+		{
+			if (!IsGameRoundStarted)
+			{
+				UpdateIsGameRoundStarted(true);// when true, bet buttons are disabled
+				UpdateFunds(CurrentFundsValue - BetValue);
+				_currentFundsSubject.OnNext(_currentFundsValue);
+			}
 		}
 
 		// Initiates a new round
 		// throws all dices and evaluates results 
 		public void StartRound()
 		{
-			//IsThrowButtonVisible = false;
-			//IsRoundStarted = true; // when true, bet buttons are disabled
-			//_gameLogic.ThrowDiceSet(_gameLogic.PlayerDice);
-			//_gameLogic.ThrowDiceSet(_gameLogic.NpcDice);
-			//_gameLogic.PlayerDice = _gameLogic.SorByDescending(_gameLogic.PlayerDice);
-			//_gameLogic.NpcDice = _gameLogic.SorByDescending(_gameLogic.NpcDice);
+			BetIsRegistered();
+			UpdateIsThrowButtonVisible(false);
+			ThrowDiceSet(PlayerDice);
+			ThrowDiceSet(NpcDice);
+			_playerDice = SorByDescending(PlayerDice);
+			_npcDice = SorByDescending(NpcDice);
 
-			//updateDiceImages();
+			// Notification that "something" has happend. In this case dice have been thrown
+			_diceThrownSubject.OnNext(Unit.Default);
 
-			//// Both player and npc dice are equal, a new throw will be conducted 
-			//if (_gameLogic.CheckIdenticalDiceSet(_gameLogic.PlayerDice, _gameLogic.NpcDice))
-			//{
-			//	Message = Messages.Instance.GetMessage(_NEW_THROW);
-			//}
-			//else if (_gameLogic.RoundEvaluation(_gameLogic.PlayerDice, _gameLogic.NpcDice))
-			//{
-			//	Message = Messages.Instance.GetMessage(_PLAYER_ROUND_WIN);
-			//	PlayerScore++;
-			//}
-			//else
-			//{
-			//	Message = Messages.Instance.GetMessage(_NPC_ROUND_WIN);
-			//	NpcScore++;
-			//}
+			// Both player and npc dice are equal, a new throw will be conducted 
+			if (CheckIdenticalDiceSet(PlayerDice, NpcDice))
+			{
+				UpdateMessage(_NEW_THROW);
+			}
+			else if (RoundEvaluation(PlayerDice, NpcDice))
+			{
+				UpdateMessage(_PLAYER_ROUND_WIN);
+				UpdatePlayerScore( ++_playerScore );
+			}
+			else
+			{
+				UpdateMessage(_NPC_ROUND_WIN);
+				UpdateNpcScore( ++_npcScore );
+			}
 
-			//if (PlayerScore != 2 && NpcScore != 2) IsThrowButtonVisible = true;  
+			if (PlayerScore != 2 && NpcScore != 2) UpdateIsThrowButtonVisible(true);
+			else CurrentGameEnded(PlayerScore);
 		}
 
+		private void CurrentGameEnded(int playerScore)
+		{
+			if (playerScore == 2) // Player Wins
+			{
+				UpdateIsThrowButtonVisible(false);
+				UpdateIsNewRoundButtonVisible(true);
+				UpdateIsBetPanelVisible(false);
+				UpdateMessage(_PLAYER_GAME_WIN);
+				UpdateFunds(CurrentFundsValue + (BetValue * 2));
+			}
+			else// Npc Wins
+			{
+				UpdateIsThrowButtonVisible(false);
+				UpdateIsNewRoundButtonVisible(true);
+				UpdateIsBetPanelVisible(false);
+				UpdateMessage(_NPC_GAME_WIN);
+			}
+		}
+		
 		// Handles a single round of dice throws 
 		public bool RoundEvaluation(Dice[] playerDice, Dice[] npcDice)
 		{

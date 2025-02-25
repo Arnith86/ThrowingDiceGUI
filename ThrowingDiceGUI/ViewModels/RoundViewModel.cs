@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Text;
 using System.Threading.Tasks;
 using ThrowingDiceGUI.Models;
@@ -25,16 +26,25 @@ namespace ThrowingDiceGUI.ViewModels
 		// Throw button pressed
 		public ReactiveCommand<Unit, Unit> ThrowCommand { get; }
 
+		private readonly CompositeDisposable _disposables = new CompositeDisposable();
+
 		public RoundViewModel(GameLogic gameLogic) 
 		{
 			_gameLogic = gameLogic;
 			IsThrowButtonVisible = false;
 
 			// Display initial values
-			updateDiceImages();
+			UpdateDiceImages();
 
 			// "Throw" button has been pressed
 			ThrowCommand = ReactiveCommand.Create(_gameLogic.StartRound);
+
+			_gameLogic.IsThrowButtonVisibleObject.Subscribe(readyToThrow =>
+			{
+				IsThrowButtonVisible = readyToThrow;
+			});
+
+			_gameLogic.DiceThrownObservable.Subscribe( _ => UpdateDiceImages() ).DisposeWith(_disposables);
 		}
 
 		// Dice throw button 
@@ -76,13 +86,19 @@ namespace ThrowingDiceGUI.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _npcDiceImage2, value);
 		}
 
-		private void updateDiceImages()
+		private void UpdateDiceImages()
 		{
 			PlayerDiceImage1 = new Bitmap(AssetLoader.Open(new Uri(_gameLogic.PlayerDice[0].DiceImagePath)));
 			PlayerDiceImage2 = new Bitmap(AssetLoader.Open(new Uri(_gameLogic.PlayerDice[1].DiceImagePath)));
 
 			NpcDiceImage1 = new Bitmap(AssetLoader.Open(new Uri(_gameLogic.NpcDice[0].DiceImagePath)));
 			NpcDiceImage2 = new Bitmap(AssetLoader.Open(new Uri(_gameLogic.NpcDice[1].DiceImagePath)));
+		}
+
+		// Cleans up all subscriptions when the ViewModel is no longer needed.
+		public void Dispose()
+		{
+			_disposables.Dispose();
 		}
 	}
 }

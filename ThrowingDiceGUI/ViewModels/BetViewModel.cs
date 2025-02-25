@@ -17,13 +17,12 @@ namespace ThrowingDiceGUI.ViewModels
 {
 	public class BetViewModel : ReactiveObject, IDisposable
 	{
-		private static string _BET_ERROR_INT = "Bet_Error_Int";
+		private static string _BET_BALANCE_ERROR = "Bet_Balance_Error";
 
 		private readonly GameLogic _gameLogic;
 		private bool _isBetPanelVisible;
 		private bool _betButtonsEnabled;
 		private int _currentBet;
-		private int _inputBet;
 		private string _inputErrorText;
 		private readonly CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -35,40 +34,31 @@ namespace ThrowingDiceGUI.ViewModels
 			_gameLogic = gameLogic;
 			IsBetPanelVisible = false;
 			BetButtonsEnabled = true;
-			InputBet = 0;
 			InputErrorText = string.Empty;
 
-			InputBetCommand = ReactiveCommand.Create<string>(bet =>
+			InputBetCommand = ReactiveCommand.Create<string>(inputBet =>
 			{
-				InputBet = int.Parse(bet);
-
-				if (InputBet <= _gameLogic.CurrentFundsValue)
+				
+				if (int.TryParse(inputBet, out int bet) && bet <= _gameLogic.CurrentFundsValue)
 				{
-					CurrentBet = InputBet;
+					CurrentBet = bet;
 					_gameLogic.UpdateBet(CurrentBet);
-					_gameLogic.RegisterBet();
-					InputBet = 0;
+					_gameLogic.ABetIsChosen();
 					InputErrorText = string.Empty;
 				}
 				else
 				{
-					InputErrorText ="Bet exceeds your current funds. Please try again!";
+					InputErrorText = Messages.Instance.GetMessage(_BET_BALANCE_ERROR);
 				}
 
 			});
 
 
-			// IMPLEMENT WHEN READY 
-			//// Disables the bet buttons after first throw of new game 
-			//this.WhenAnyValue(GameViewModel => GameViewModel.IsRoundStarted).Subscribe(
-			//	isRoundStarted =>
-			//	{
-			//		if (isRoundStarted)
-			//		{
-			//			BetButtonsEnabled = false;
-			//		}
-			//	}
-			//);
+			// Disables the bet buttons after first throw of new game (when game round starts)
+			_gameLogic.IsGameRoundStartedObject.Subscribe( isRoundStarted =>
+			{
+				BetButtonsEnabled = !isRoundStarted;
+			}).DisposeWith(_disposables);
 
 			_gameLogic.IsBetPanelVisibleObject.Subscribe(isBetPanelVisible =>
 			{
@@ -106,12 +96,12 @@ namespace ThrowingDiceGUI.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _currentBet, value);
 		}
 
-		// houses the inputed value for fund deposit
-		public int InputBet
-		{
-			get => _inputBet;
-			set => this.RaiseAndSetIfChanged(ref _inputBet, value);
-		}
+		//// houses the inputed value for fund deposit
+		//public int InputBet
+		//{
+		//	get => _inputBet;
+		//	set => this.RaiseAndSetIfChanged(ref _inputBet, value);
+		//}
 
 		// Cleans up all subscriptions when the ViewModel is no longer needed.
 		public void Dispose()

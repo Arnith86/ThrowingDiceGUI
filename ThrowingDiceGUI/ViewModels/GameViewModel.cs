@@ -27,16 +27,8 @@ namespace ThrowingDiceGUI.ViewModels
 		
 		private static string _DEPOSIT_ERROR = "Deposit_Error";
 		private static string _CURRENT_BALANCE = "Current_Balance";
-		private static string _START_BET = "Start_Bet";
 		private static string _CURRENT_BET = "Current_Bet";
-		private static string _BET_BALANCE_ERROR = "Bet_Balance_Error";
-		private static string _THROW_DIE = "Throw_Die";
-		private static string _NEW_THROW = "New_Throw";
 		private static string _SHOW_DIE = "Show_Die";
-		private static string _PLAYER_ROUND_WIN = "Player_Round_Win";
-		private static string _NPC_ROUND_WIN = "Npc_Round_Win";
-		private static string _PLAYER_GAME_WIN = "Player_Game_Win";
-		private static string _NPC_GAME_WIN = "Npc_Game_Win";
 		private static string _BUTTON_PRESS = "Button_Press";
 		private static string _CONTINUE = "Continue";
 		private static string _FOUNDS_ADDED = "Founds_Added";
@@ -81,46 +73,17 @@ namespace ThrowingDiceGUI.ViewModels
 				IsNewRoundButtonVisible = isNewRoundButtonVisible
 			).DisposeWith(_disposables);
 
-			// Subscribes to current results, when player or npc reach 2 wins game ends.
-			this.WhenAnyValue(GameViewModel => GameViewModel.PlayerScore, GameViewModel => GameViewModel.NpcScore).
-			Subscribe(scores =>
+			_gameLogic.PlayerScoreObservable.Subscribe(playerScore =>
 			{
-				// IMPLEMENT THIS WHEN READY
-				//if (scores.Item1 == 2) // Player Wins
-				//{
-				//	IsThrowButtonVisible = false;
-				//	IsNewRoundButtonVisible = true;
-				//	IsBetPanelVisible = false;
-				//	Message = Messages.Instance.GetMessage(_PLAYER_GAME_WIN);
-				//	//CurrentBalance = _game.CurrentBalance += (CurrentBet * 2);
-				//	//_game.UpdateFunds(CurrentFunds);
-				//	_gameLogic.UpdateFunds(_gameLogic.CurrentFundsValue + (_gameLogic.BetValue * 2));
-				//}
-				//else if (scores.Item2 == 2) // Npc Wins
-				//{
-				//	IsThrowButtonVisible = false;
-				//	IsNewRoundButtonVisible = true;
-				//	IsBetPanelVisible = false;
-				//	Message = Messages.Instance.GetMessage(_NPC_GAME_WIN);
-				//}
-			});
+				PlayerScore = playerScore;
+			}).DisposeWith(_disposables);
 
-			// IMPLEMENT THIS WHEN READY
-			//// Disables the bet buttons after first throw of new game 
-			//this.WhenAnyValue(GameViewModel => GameViewModel.IsRoundStarted).Subscribe(
-			//	isRoundStarted =>
-			//	{
-			//		if (isRoundStarted)
-			//		{
-			//			BetButtonsEnabled = false;
-			//		}
-			//	}
-			//);
+			_gameLogic.NpcScoreObservable.Subscribe(npcScore =>
+			{
+				NpcScore = npcScore;
+			}).DisposeWith(_disposables);
+
 		}
-
-
-
-
 
 		public int PlayerScore
 		{
