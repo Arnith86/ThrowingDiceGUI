@@ -71,7 +71,7 @@ namespace ThrowingDiceGUI.ViewModels
 
 			_gameLogic.IsNewRoundButtonVisibleObservable.Subscribe(isNewRoundButtonVisible =>
 				IsNewRoundButtonVisible = isNewRoundButtonVisible
-			).DisposeWith(_disposables);
+			).DisposeWith(_disposables);	
 
 			_gameLogic.PlayerScoreObservable.Subscribe(playerScore =>
 			{

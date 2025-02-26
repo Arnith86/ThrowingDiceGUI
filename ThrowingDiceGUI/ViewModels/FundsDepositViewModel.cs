@@ -23,7 +23,8 @@ namespace ThrowingDiceGUI.ViewModels
 		private string _inputFundsDeposit;
 		private string _inputErrorText;
 		private int _currentFundsValue;
-		private bool _isFundPanelVisible;
+		private bool _isFundPanelVisible; 
+		private bool _isGameRoundStarted;
 
 		private static readonly Regex InputFundsRegex = new Regex(@"^\d+$");
 		private readonly CompositeDisposable _disposables = new CompositeDisposable();
@@ -57,9 +58,18 @@ namespace ThrowingDiceGUI.ViewModels
 				CurrentFunds = Funds;
 			}).DisposeWith(_disposables);
 
-			_gameLogic.IsFundPanelVisíbleObservable.Subscribe(isFundPanelVisible =>
+			// 
+			this.WhenAnyValue(FundsDepositViewModel => FundsDepositViewModel.CurrentFunds,
+								FundsDepositViewModel => FundsDepositViewModel.IsGameRoundStarted/*,
+								GameViewModel => GameViewModel.*/).Subscribe(Values =>
 			{
-				IsFundPanelVisible = isFundPanelVisible; 
+				IsFundPanelVisible = Values.Item1 < 100 && !Values.Item2;
+
+			}).DisposeWith(_disposables);
+
+			_gameLogic.IsGameRoundStartedObject.Subscribe(isGameRoundStarted =>
+			{
+				IsGameRoundStarted = isGameRoundStarted;
 			}).DisposeWith(_disposables);
 		}
 
@@ -80,6 +90,13 @@ namespace ThrowingDiceGUI.ViewModels
 		{
 			get => _isFundPanelVisible;
 			set => this.RaiseAndSetIfChanged(ref _isFundPanelVisible, value);
+		}
+
+		// Active if bet has been regestered and first throw of round has been conducted
+		public bool IsGameRoundStarted
+		{
+			get => _isGameRoundStarted;
+			set => this.RaiseAndSetIfChanged(ref _isGameRoundStarted, value);
 		}
 
 		public int CurrentFunds
