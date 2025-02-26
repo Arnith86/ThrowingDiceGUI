@@ -38,19 +38,22 @@ namespace ThrowingDiceGUI.ViewModels
 
 			InputBetCommand = ReactiveCommand.Create<string>(inputBet =>
 			{
-				
-				if (int.TryParse(inputBet, out int bet) && bet <= _gameLogic.CurrentFundsValue)
+				// a single temporary instance of the subscribed value is collected but not stored in the class
+				_gameLogic.CurrentFundsObservable.Take(1).Subscribe(currentFundsValue =>
 				{
-					CurrentBet = bet;
-					_gameLogic.UpdateBet(CurrentBet);
-					_gameLogic.ABetIsChosen();
-					InputErrorText = string.Empty;
-				}
-				else
-				{
-					InputErrorText = Messages.Instance.GetMessage(_BET_BALANCE_ERROR);
-				}
-
+					// Validates bet and sets value if valid 
+					if (int.TryParse(inputBet, out int bet) && bet <= currentFundsValue)
+					{
+						CurrentBet = bet;
+						_gameLogic.UpdateBet(CurrentBet);
+						_gameLogic.ABetIsChosen();
+						InputErrorText = string.Empty;
+					}
+					else
+					{
+						InputErrorText = Messages.Instance.GetMessage(_BET_BALANCE_ERROR);
+					}
+				});
 			});
 
 
