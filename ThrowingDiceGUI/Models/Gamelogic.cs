@@ -9,6 +9,7 @@ using System.Net.Http.Headers;
 using System.Reactive.Linq;
 using System.Reactive;
 using ReactiveUI;
+using DynamicData;
 
 namespace ThrowingDiceGUI.Models
 {
@@ -24,9 +25,10 @@ namespace ThrowingDiceGUI.Models
 		private static string _PLAYER_GAME_WIN = "Player_Game_Win";
 		private static string _NPC_GAME_WIN = "Npc_Game_Win";
 
-		private Player player; // should i keep this? 
+		//private Player player; // should i keep this? 
 		private Dice[] _playerDice;
 		private Dice[] _npcDice;
+		private Dice[] _gameDice;
 
 		private int _playerScore = 0;
 		private int _npcScore = 0;
@@ -50,10 +52,11 @@ namespace ThrowingDiceGUI.Models
 		private bool _isBetPanelVisible;
 		private bool _isThrowButtonVisible;
 
-	
+
 
 
 		// A BehaviorSubject holds the latest value and emits it to new subscribers.
+		private BehaviorSubject<Dice[]> _gameDiceSubject = new BehaviorSubject<Dice[]>(Array.Empty<Dice>());
 		private BehaviorSubject<int> _playerScoreSubject = new BehaviorSubject<int>(0);
 		private BehaviorSubject<int> _npcScoreSubject = new BehaviorSubject<int>(0);
 		private BehaviorSubject<int> _currentFundsSubject = new BehaviorSubject<int>(0);
@@ -68,52 +71,6 @@ namespace ThrowingDiceGUI.Models
 		private BehaviorSubject<bool> _isBetPanelVisibleSubject = new BehaviorSubject<bool>(false);
 		private BehaviorSubject<bool> _isThrowButtonVisibleSubject = new BehaviorSubject<bool>(false);
 		
-		private Subject<Unit> _diceThrownSubject = new Subject<Unit>();
-
-		// Getters and Setters 
-		//public Dice[] PlayerDice => _playerDice;
-		//public Dice[] NpcDice => _npcDice;
-		//public int PlayerScore => _playerScore;
-		//public int NpcScore => _npcScore;
-		//public int CurrentFundsValue => _currentFundsValue;
-		//public int BetValue => _betValue;
-		// public bool IsGameRoundStarted => _isGameRoundStarted;
-		
-		//public string MessageValue
-		//{
-		//	get => _messageValue;
-		//	set => _messageValue = value;
-		//} 
-		//public bool IsStartButtonVisible
-		//{
-		//	get => _isStartButtonVisible;
-		//	set => _isStartButtonVisible = value;
-		//}
-
-		//public bool IsNewRoundButtonVisible
-		//{
-		//	get => _isNewRoundButtonVisible;
-		//	set => _isNewRoundButtonVisible = value;
-		//}
-
-		//public bool IsFundPanelVisible
-		//{
-		//	get => _isFundPanelVisible;
-		//	set => _isFundPanelVisible = value;
-		//}
-		//public bool IsBetPanelVisible
-		//{
-		//	get => _isBetPanelVisible;
-		//	set => _isBetPanelVisible = value;
-		//}
-
-		//public bool IsThrowButtonVisible
-		//{
-		//	get => _isThrowButtonVisible;
-		//	set => _isThrowButtonVisible = value;
-		//}
-
-
 		// This method will handel all game logic 
 		public GameLogic()
 		{
@@ -122,10 +79,14 @@ namespace ThrowingDiceGUI.Models
 			UpdateIsStartButtonVisible(true);
 			UpdateIsNewRoundButtonVisible(false);
 			
-
-			player = new Player();
 			_playerDice = new Dice[] { new Dice(), new Dice() };
 			_npcDice = new Dice[] { new Dice(), new Dice() };
+			_gameDice = new Dice[] { _playerDice[0], _playerDice[1], _npcDice[0], _npcDice[1] };
+			
+			// Updates the game dices to their current values
+			//UpdateGameDice();
+
+			_gameDiceSubject = new BehaviorSubject<Dice[]>(_gameDice);
 			_playerScoreSubject = new BehaviorSubject<int>(_playerScore);
 			_npcScoreSubject = new BehaviorSubject<int>(_npcScore);
 			_currentFundsSubject = new BehaviorSubject<int>(_currentFundsValue);
@@ -139,11 +100,10 @@ namespace ThrowingDiceGUI.Models
 			_isFundPanelVisibleSubject = new BehaviorSubject<bool>(_isFundPanelVisible);
 			_isBetPanelVisibleSubject = new BehaviorSubject<bool>(_isBetPanelVisible);
 			_isThrowButtonVisibleSubject = new BehaviorSubject<bool>(_isThrowButtonVisible);
-
-		
 		}
 
 		// Expose an IObservable<int> so the ViewModel can subscribe to balance changes.
+		public IObservable<Dice[]> GameDiceObservable => _gameDiceSubject.AsObservable();
 		public IObservable<int> PlayerScoreObservable => _playerScoreSubject.AsObservable();
 		public IObservable<int> NpcScoreObservable => _npcScoreSubject.AsObservable();
 		public IObservable<int> CurrentFundsObservable => _currentFundsSubject.AsObservable();
@@ -157,18 +117,32 @@ namespace ThrowingDiceGUI.Models
 		public IObservable<bool> IsFundPanelVisíbleObservable => _isFundPanelVisibleSubject.AsObservable();
 		public IObservable<bool> IsBetPanelVisibleObject => _isBetPanelVisibleSubject.AsObservable();
 		public IObservable<bool> IsThrowButtonVisibleObject => _isThrowButtonVisibleSubject.AsObservable();
-		public IObservable<Unit> DiceThrownObservable => _diceThrownSubject.AsObservable();
 
 
-		// Updates Values and notify subscibers 	
+		// Updates Values and notify subscibers
+		private void UpdateGameDice()
+		{
+			int indexCounter = 0;
 
-		public void UpdatePlayerScore(int score) 
+			for (int i = 0; i < 2; i++)
+			{
+				_gameDice[indexCounter++] = _playerDice[i];	
+			}
+			for (int j = 0; j < 2; j++)
+			{
+				_gameDice[indexCounter++] = _npcDice[j];
+			}
+
+			_gameDiceSubject.OnNext(_gameDice);
+		}
+
+		private void UpdatePlayerScore(int score) 
 		{
 			_playerScore = score;
 			_playerScoreSubject.OnNext(score);
 		}
 
-		public void UpdateNpcScore(int score)
+		private void UpdateNpcScore(int score)
 		{
 			_npcScore = score;
 			_npcScoreSubject.OnNext(score);
@@ -186,43 +160,43 @@ namespace ThrowingDiceGUI.Models
 			_betSubject.OnNext(amount);
 		}
 
-		public void UpdateIsGameRoundStarted(bool tf)
+		private void UpdateIsGameRoundStarted(bool tf)
 		{
 			_isGameRoundStarted = tf;
 			_isGameRoundStartedSubject.OnNext(tf);
 		}
 
-		public void UpdateMessage(string message)
+		private void UpdateMessage(string message)
 		{
 			_messageValue = Messages.Instance.GetMessage(message);
 			_messageSubject.OnNext(_messageValue);
 		}
 
-		public void UpdateIsStartButtonVisible(bool tf)
+		private void UpdateIsStartButtonVisible(bool tf)
 		{
 			_isStartButtonVisible = tf;
 			_isStartButtonVisibleSubject.OnNext(_isStartButtonVisible);
 		}
 
-		public void UpdateIsNewRoundButtonVisible(bool tf)
+		private void UpdateIsNewRoundButtonVisible(bool tf)
 		{
 			_isNewRoundButtonVisible = tf;
 			_isNewRoundButtonVisibleSubject.OnNext(_isNewRoundButtonVisible);
 		}
 
-		public void UpdateIsFundPanelVisible(bool tf)
+		private void UpdateIsFundPanelVisible(bool tf)
 		{
 			_isFundPanelVisible = tf;
 			_isFundPanelVisibleSubject.OnNext(_isFundPanelVisible);
 		}
 
-		public void UpdateIsBetPanelVisible(bool tf)
+		private void UpdateIsBetPanelVisible(bool tf)
 		{
 			_isBetPanelVisible = tf;
 			_isBetPanelVisibleSubject.OnNext(_isBetPanelVisible);
 		}
 
-		public void UpdateIsThrowButtonVisible(bool tf)
+		private void UpdateIsThrowButtonVisible(bool tf)
 		{
 			_isThrowButtonVisible = tf;
 			_isThrowButtonVisibleSubject.OnNext(_isThrowButtonVisible);
@@ -293,8 +267,7 @@ namespace ThrowingDiceGUI.Models
 			_playerDice = SorByDescending(_playerDice);
 			_npcDice = SorByDescending(_npcDice);
 
-			// Notification that "something" has happend. In this case dice have been thrown
-			_diceThrownSubject.OnNext(Unit.Default);
+			UpdateGameDice();
 
 			// Both player and npc dice are equal, a new throw will be conducted 
 			if (CheckIdenticalDiceSet(_playerDice, _npcDice))
