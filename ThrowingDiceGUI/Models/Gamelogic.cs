@@ -37,6 +37,7 @@ namespace ThrowingDiceGUI.Models
 		private int _currentFundsValue = 0;
 		private int _betValue = 0;
 
+		private bool _isGameStarted;
 		private bool _isGameRoundStarted;
 		//private bool _isGameRoundCompleted;
 		private bool _isReadyToReceiveBet;
@@ -46,7 +47,6 @@ namespace ThrowingDiceGUI.Models
 
 		// Visibility boolean
 		/// TODO: THESE ARE TO BE REMOVED does not follow MVVM
-		private bool _isStartButtonVisible;
 		private bool _isNewRoundButtonVisible;
 		
 
@@ -59,6 +59,7 @@ namespace ThrowingDiceGUI.Models
 		private BehaviorSubject<int> _npcScoreSubject = new BehaviorSubject<int>(0);
 		private BehaviorSubject<int> _currentFundsSubject = new BehaviorSubject<int>(0);
 		private BehaviorSubject<int> _betSubject = new BehaviorSubject<int>(0);
+		private BehaviorSubject<bool> _isGameStartedSubject = new BehaviorSubject<bool>(false);
 		private BehaviorSubject<bool> _isGameRoundStartedSubject = new BehaviorSubject<bool>(false);
 		private BehaviorSubject<bool> _isGameRoundEndedSubject = new BehaviorSubject<bool>(false);
 		private BehaviorSubject<bool> _isReadyToReceivBetSubject = new BehaviorSubject<bool>(false);
@@ -66,7 +67,6 @@ namespace ThrowingDiceGUI.Models
 		private BehaviorSubject<string> _messageSubject = new BehaviorSubject<string>("");
 
 		/// TODO: THESE ARE TO BE REMOVED does not follow MVVM
-		private BehaviorSubject<bool> _isStartButtonVisibleSubject = new BehaviorSubject<bool>(true);
 		private BehaviorSubject<bool> _isNewRoundButtonVisibleSubject = new BehaviorSubject<bool> (false);
 		
 		
@@ -75,7 +75,7 @@ namespace ThrowingDiceGUI.Models
 		{
 			// Displays welcome message on application start
 			UpdateMessage(_WELCOME);
-			UpdateIsStartButtonVisible(true);
+			UpdateIsGameRoundStarted(false);
 			UpdateIsNewRoundButtonVisible(false);
 			
 			_playerDice = new Dice[] { new Dice(), new Dice() };
@@ -87,13 +87,13 @@ namespace ThrowingDiceGUI.Models
 			_npcScoreSubject = new BehaviorSubject<int>(_npcScore);
 			_currentFundsSubject = new BehaviorSubject<int>(_currentFundsValue);
 			_betSubject = new BehaviorSubject<int>(_betValue);
+			_isGameStartedSubject = new BehaviorSubject<bool>(_isGameStarted);
 			_isGameRoundStartedSubject = new BehaviorSubject<bool>(_isGameRoundStarted);
 			_isReadyToReceivBetSubject = new BehaviorSubject<bool>(_isReadyToReceiveBet);
 			_isReadyToThrowSubject = new BehaviorSubject<bool>(_isReadyToThrow);
 			_messageSubject = new BehaviorSubject<string>(_messageValue);
 
 
-			_isStartButtonVisibleSubject = new BehaviorSubject<bool>(_isStartButtonVisible);
 			_isNewRoundButtonVisibleSubject = new BehaviorSubject<bool>(_isNewRoundButtonVisible);
 			
 		}
@@ -104,6 +104,7 @@ namespace ThrowingDiceGUI.Models
 		public IObservable<int> NpcScoreObservable => _npcScoreSubject.AsObservable();
 		public IObservable<int> CurrentFundsObservable => _currentFundsSubject.AsObservable();
 		public IObservable<int> BetObservable => _betSubject.AsObservable();
+		public IObservable<bool> IsGameStartedObservable => _isGameStartedSubject.AsObservable();
 		public IObservable<bool> IsGameRoundStartedObject => _isGameRoundStartedSubject.AsObservable();
 		public IObservable<bool> IsGameRoundEndedObject => _isGameRoundEndedSubject.AsObservable();
 		public IObservable<bool> IsReadyToReceiveBetObject => _isReadyToReceivBetSubject.AsObservable();
@@ -111,7 +112,6 @@ namespace ThrowingDiceGUI.Models
 		public IObservable<string> MessageObservable => _messageSubject.AsObservable();
 
 
-		public IObservable<bool> IsStartButtonVisibleObservable => _isStartButtonVisibleSubject.AsObservable();
 		public IObservable<bool> IsNewRoundButtonVisibleObservable => _isNewRoundButtonVisibleSubject.AsObservable();
 		
 
@@ -157,6 +157,12 @@ namespace ThrowingDiceGUI.Models
 			_betSubject.OnNext(amount);
 		}
 
+		private void UpdateIsGameStarted(bool tf)
+		{
+			_isGameStarted = tf;
+			_isGameStartedSubject.OnNext(tf);
+		}
+
 		private void UpdateIsGameRoundStarted(bool tf)
 		{
 			_isGameRoundStarted = tf;
@@ -188,12 +194,6 @@ namespace ThrowingDiceGUI.Models
 		}
 
 		/// TODO: THESE ARE TO BE REMOVED does not follow MVVM
-		private void UpdateIsStartButtonVisible(bool tf)
-		{
-			_isStartButtonVisible = tf;
-			_isStartButtonVisibleSubject.OnNext(_isStartButtonVisible);
-		}
-
 		private void UpdateIsNewRoundButtonVisible(bool tf)
 		{
 			_isNewRoundButtonVisible = tf;
@@ -229,9 +229,7 @@ namespace ThrowingDiceGUI.Models
 		public void AskForDeposit()
 		{
 			UpdateMessage(_ASK_FOR_DEPOSIT);
-			UpdateIsStartButtonVisible(false);
-			//UpdateIsFundPanelVisible(true);  
-			/// TODO: Figure out a solution where the Funds deposit automatically gets displayed 
+			UpdateIsGameStarted(true);
 		}
 
 		// Ask which bet to place
