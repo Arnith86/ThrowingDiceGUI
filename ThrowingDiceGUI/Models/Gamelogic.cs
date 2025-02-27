@@ -155,12 +155,6 @@ namespace ThrowingDiceGUI.Models
 			_isGameRoundStartedSubject.OnNext(tf);
 		}
 
-		private void UpdateIsGameRoundEnded(bool tf)
-		{
-			_isGameRoundStarted = tf;
-			_isGameRoundStartedSubject.OnNext(tf);
-		}
-
 		private void UpdateIsReadyToReceiveBet(bool tf)
 		{
 			_isReadyToReceiveBet = tf;
@@ -186,16 +180,12 @@ namespace ThrowingDiceGUI.Models
 		}
 
 		
-
-		
-
 		// If not enough funds, sends to "AskForDeposit" method, otherwise "PlaceBet"
 		public void NewRound()
 		{
 			UpdatePlayerScore(0);
 			UpdateNpcScore(0);
 			UpdateBet(0);
-			UpdateIsGameRoundEnded(false);
 			UpdateNewRoundCanBeStarted(false);
 
 			if (_currentFundsValue < 100)
@@ -232,6 +222,7 @@ namespace ThrowingDiceGUI.Models
 			UpdateIsReadyToThrow(true);
 		}
 
+		// Bet can no longer be changed 
 		private void BetIsRegistered()
 		{
 			if (!_isGameRoundStarted)
@@ -278,28 +269,21 @@ namespace ThrowingDiceGUI.Models
 			else
 			{
 				UpdateIsGameRoundStarted(false);
-				UpdateIsGameRoundEnded(true);
 				CurrentGameEnded(_playerScore); 
 			}
 		}
 
 		private void CurrentGameEnded(int playerScore)
 		{
-			if (playerScore == 2) // Player Wins
-			{
-				UpdateIsReadyToThrow(false);
-				UpdateNewRoundCanBeStarted(true);
-				UpdateIsReadyToReceiveBet(false);
-				UpdateMessage(_PLAYER_GAME_WIN);
-				UpdateFunds(_currentFundsValue + (_betValue * 2));
-			}
-			else// Npc Wins
-			{
-				UpdateIsReadyToThrow(false);
-				UpdateNewRoundCanBeStarted(true);
-				UpdateIsReadyToReceiveBet(false);
-				UpdateMessage(_NPC_GAME_WIN);
-			}
+			UpdateIsReadyToThrow(false);
+			UpdateNewRoundCanBeStarted(true);
+			UpdateIsReadyToReceiveBet(false);
+
+			// If playerscore == 2, display player win, else npc win
+			UpdateMessage(playerScore == 2 ? _PLAYER_GAME_WIN : _NPC_GAME_WIN);
+
+			// Player Wins, update funds
+			if (playerScore == 2) UpdateFunds(_currentFundsValue + (_betValue * 2));
 		}
 		
 		// Handles a single round of dice throws 
