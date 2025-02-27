@@ -37,22 +37,15 @@ namespace ThrowingDiceGUI.Models
 		private int _currentFundsValue = 0;
 		private int _betValue = 0;
 
+		// Game states 
 		private bool _isGameStarted;
 		private bool _isGameRoundStarted;
-		//private bool _isGameRoundCompleted;
 		private bool _isReadyToReceiveBet;
 		private bool _isReadyToThrow;
-
+		private bool _newRoundCanBeStarted;
 		private string _messageValue = "";
-
-		// Visibility boolean
-		/// TODO: THESE ARE TO BE REMOVED does not follow MVVM
-		private bool _isNewRoundButtonVisible;
 		
-
-
-
-
+		
 		// A BehaviorSubject holds the latest value and emits it to new subscribers.
 		private BehaviorSubject<Dice[]> _gameDiceSubject = new BehaviorSubject<Dice[]>(Array.Empty<Dice>());
 		private BehaviorSubject<int> _playerScoreSubject = new BehaviorSubject<int>(0);
@@ -64,19 +57,17 @@ namespace ThrowingDiceGUI.Models
 		private BehaviorSubject<bool> _isGameRoundEndedSubject = new BehaviorSubject<bool>(false);
 		private BehaviorSubject<bool> _isReadyToReceivBetSubject = new BehaviorSubject<bool>(false);
 		private BehaviorSubject<bool> _isReadyToThrowSubject = new BehaviorSubject<bool>(false);
+		private BehaviorSubject<bool> _newRoundCanBeStartedSubject = new BehaviorSubject<bool>(false);
 		private BehaviorSubject<string> _messageSubject = new BehaviorSubject<string>("");
 
-		/// TODO: THESE ARE TO BE REMOVED does not follow MVVM
-		private BehaviorSubject<bool> _isNewRoundButtonVisibleSubject = new BehaviorSubject<bool> (false);
-		
-		
+				
 		// This method will handel all game logic 
 		public GameLogic()
 		{
 			// Displays welcome message on application start
 			UpdateMessage(_WELCOME);
 			UpdateIsGameRoundStarted(false);
-			UpdateIsNewRoundButtonVisible(false);
+			UpdateNewRoundCanBeStarted(false);
 			
 			_playerDice = new Dice[] { new Dice(), new Dice() };
 			_npcDice = new Dice[] { new Dice(), new Dice() };
@@ -91,13 +82,11 @@ namespace ThrowingDiceGUI.Models
 			_isGameRoundStartedSubject = new BehaviorSubject<bool>(_isGameRoundStarted);
 			_isReadyToReceivBetSubject = new BehaviorSubject<bool>(_isReadyToReceiveBet);
 			_isReadyToThrowSubject = new BehaviorSubject<bool>(_isReadyToThrow);
+			_newRoundCanBeStartedSubject = new BehaviorSubject<bool>(_newRoundCanBeStarted);
 			_messageSubject = new BehaviorSubject<string>(_messageValue);
-
-
-			_isNewRoundButtonVisibleSubject = new BehaviorSubject<bool>(_isNewRoundButtonVisible);
-			
 		}
 
+		
 		// Expose an IObservable<int> so the ViewModel can subscribe to balance changes.
 		public IObservable<Dice[]> GameDiceObservable => _gameDiceSubject.AsObservable();
 		public IObservable<int> PlayerScoreObservable => _playerScoreSubject.AsObservable();
@@ -109,13 +98,10 @@ namespace ThrowingDiceGUI.Models
 		public IObservable<bool> IsGameRoundEndedObject => _isGameRoundEndedSubject.AsObservable();
 		public IObservable<bool> IsReadyToReceiveBetObject => _isReadyToReceivBetSubject.AsObservable();
 		public IObservable<bool> IsReadyToThrowObject => _isReadyToThrowSubject.AsObservable();
+		public IObservable<bool> NewRoundCanbeStartedObservable => _newRoundCanBeStartedSubject.AsObservable();
 		public IObservable<string> MessageObservable => _messageSubject.AsObservable();
 
-
-		public IObservable<bool> IsNewRoundButtonVisibleObservable => _isNewRoundButtonVisibleSubject.AsObservable();
 		
-
-
 		// Updates Values and notify subscibers
 		private void UpdateGameDice()
 		{
@@ -193,11 +179,10 @@ namespace ThrowingDiceGUI.Models
 			_isReadyToThrowSubject.OnNext(_isReadyToThrow);
 		}
 
-		/// TODO: THESE ARE TO BE REMOVED does not follow MVVM
-		private void UpdateIsNewRoundButtonVisible(bool tf)
+		private void UpdateNewRoundCanBeStarted(bool tf)
 		{
-			_isNewRoundButtonVisible = tf;
-			_isNewRoundButtonVisibleSubject.OnNext(_isNewRoundButtonVisible);
+			_newRoundCanBeStarted = tf;
+			_newRoundCanBeStartedSubject.OnNext(_newRoundCanBeStarted);
 		}
 
 		
@@ -211,7 +196,7 @@ namespace ThrowingDiceGUI.Models
 			UpdateNpcScore(0);
 			UpdateBet(0);
 			UpdateIsGameRoundEnded(false);
-			UpdateIsNewRoundButtonVisible(false);// FIX this
+			UpdateNewRoundCanBeStarted(false);
 
 			if (_currentFundsValue < 100)
 			{
@@ -303,7 +288,7 @@ namespace ThrowingDiceGUI.Models
 			if (playerScore == 2) // Player Wins
 			{
 				UpdateIsReadyToThrow(false);
-				UpdateIsNewRoundButtonVisible(true);
+				UpdateNewRoundCanBeStarted(true);
 				UpdateIsReadyToReceiveBet(false);
 				UpdateMessage(_PLAYER_GAME_WIN);
 				UpdateFunds(_currentFundsValue + (_betValue * 2));
@@ -311,7 +296,7 @@ namespace ThrowingDiceGUI.Models
 			else// Npc Wins
 			{
 				UpdateIsReadyToThrow(false);
-				UpdateIsNewRoundButtonVisible(true);
+				UpdateNewRoundCanBeStarted(true);
 				UpdateIsReadyToReceiveBet(false);
 				UpdateMessage(_NPC_GAME_WIN);
 			}
