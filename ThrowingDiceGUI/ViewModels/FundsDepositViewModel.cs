@@ -20,6 +20,8 @@ namespace ThrowingDiceGUI.ViewModels
 		private static string _DEPOSIT_ERROR = "Deposit_Error";
 
 		private readonly GameLogic _gameLogic;
+		private readonly GameViewModel _gameViewModel;
+		private bool _isGameStarted;
 		private string _inputFundsDeposit;
 		private string _inputErrorText;
 		private int _currentFundsValue;
@@ -29,9 +31,10 @@ namespace ThrowingDiceGUI.ViewModels
 		private static readonly Regex InputFundsRegex = new Regex(@"^\d+$");
 		private readonly CompositeDisposable _disposables = new CompositeDisposable();
 
-		public FundsDepositViewModel(GameLogic gameLogic) 
+		public FundsDepositViewModel(GameLogic gameLogic, GameViewModel gameViewModel) 
 		{
 			_gameLogic = gameLogic;
+			_gameViewModel = gameViewModel;
 			InputErrorText = string.Empty;
 
 			// Validates and Assignes Funds value
@@ -51,6 +54,7 @@ namespace ThrowingDiceGUI.ViewModels
 				}
 			});
 
+
 			// Subscribe to balance updates from the GameLogic
 			_gameLogic.CurrentFundsObservable.Subscribe(Funds =>
 			{
@@ -58,22 +62,25 @@ namespace ThrowingDiceGUI.ViewModels
 				CurrentFunds = Funds;
 			}).DisposeWith(_disposables);
 
-			// 
-			this.WhenAnyValue(FundsDepositViewModel => FundsDepositViewModel.CurrentFunds,
-								FundsDepositViewModel => FundsDepositViewModel.IsGameRoundStarted/*,
-								GameViewModel => GameViewModel.*/).Subscribe(Values =>
+			
+			// Funds panel is only visible if funds are less than 100, game has started and no gameround is active.
+			this.WhenAnyValue(
+				FundsDepositViewModel => FundsDepositViewModel.CurrentFunds,
+				FundsDepositViewModel => FundsDepositViewModel.IsGameRoundStarted,
+				FundsDepositViewModel => FundsDepositViewModel._gameViewModel.IsGameStarted).Subscribe(Values =>
 			{
-				IsFundPanelVisible = Values.Item1 < 100 && !Values.Item2;
+				IsFundPanelVisible = Values.Item1 < 100 && !Values.Item2 && Values.Item3;
 
 			}).DisposeWith(_disposables);
 
+			// Keeps track on if a gameround in under way.
+			// If active, funds cannot be added and no bets can be placed
 			_gameLogic.IsGameRoundStartedObject.Subscribe(isGameRoundStarted =>
 			{
 				IsGameRoundStarted = isGameRoundStarted;
 			}).DisposeWith(_disposables);
+			
 		}
-
-
 
 		// New fund deposit recived
 		public ReactiveCommand<string, Unit> InputFundDepositCommand { get; }

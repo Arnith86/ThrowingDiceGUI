@@ -14,6 +14,8 @@ using System.ComponentModel.DataAnnotations;
 using ReactiveUI.Validation.Extensions;
 using ReactiveUI.Validation.Helpers;
 using System.Reactive.Disposables;
+using System.Reactive.Subjects;
+using System.Reactive.Linq;
 
 
 
@@ -37,13 +39,13 @@ namespace ThrowingDiceGUI.ViewModels
 
 
 		private readonly GameLogic _gameLogic;
-		private string _message; 
+		private string _message;
+		private bool _isGameStarted;
 		private bool _isStartButtonVisible;
 		private bool _isNewRoundButtonVisible;
 		private int _playerScore;
 		private int _npcScore;
 	
-
 		// Start Game button has been pressed
 		public ReactiveCommand<Unit, Unit> StartGameCommand { get; }
 		
@@ -54,11 +56,19 @@ namespace ThrowingDiceGUI.ViewModels
 		public GameViewModel(GameLogic gameLogic)
 		{
 			// Sets the initial settings
-			IsNewRoundButtonVisible = false;
+			IsGameStarted = false;
+			
+			IsNewRoundButtonVisible = false; // Remove when proper solution is found
 	
 			_gameLogic = gameLogic;
 
-			StartGameCommand = ReactiveCommand.Create(_gameLogic.NewRound);
+	
+			// The "Start" button has been pressed, starting the game proper.
+			StartGameCommand = ReactiveCommand.Create(() => { 
+				IsGameStarted = true; 
+				_gameLogic.NewRound(); 
+			});
+
 			NewRoundCommand = ReactiveCommand.Create(_gameLogic.NewRound);
 
 			_gameLogic.MessageObservable.Subscribe( message =>
@@ -85,10 +95,16 @@ namespace ThrowingDiceGUI.ViewModels
 
 		}
 
+		public bool IsGameStarted
+		{
+			get => _isGameStarted;
+			set => this.RaiseAndSetIfChanged(ref _isGameStarted, value);
+		}
+
 		public int PlayerScore
 		{
 			get => _playerScore;
-			set => this.RaiseAndSetIfChanged(ref _playerScore, value) ;
+			set => this.RaiseAndSetIfChanged(ref _playerScore, value);
 		}
 
 		public int NpcScore
@@ -112,7 +128,7 @@ namespace ThrowingDiceGUI.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _isNewRoundButtonVisible, value);
 		}
 
-			// Updates the displayed information message 
+		// Updates the displayed information message 
 		public string Message
 		{
 			get => _message;
