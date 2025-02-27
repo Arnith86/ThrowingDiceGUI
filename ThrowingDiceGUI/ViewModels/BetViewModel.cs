@@ -63,7 +63,8 @@ namespace ThrowingDiceGUI.ViewModels
 				BetButtonsEnabled = !isRoundStarted;
 			}).DisposeWith(_disposables);
 
-			_gameLogic.IsBetPanelVisibleObject.Subscribe(isBetPanelVisible =>
+
+			_gameLogic.IsReadyToReceiveBetObject.Subscribe(isBetPanelVisible =>
 			{
 				IsBetPanelVisible = isBetPanelVisible;
 			}).DisposeWith(_disposables);
@@ -77,13 +78,12 @@ namespace ThrowingDiceGUI.ViewModels
 			private set => this.RaiseAndSetIfChanged(ref _inputErrorText, value);
 		} 
 
-		// Bet Input panel
+		// Changes visibility of Bet Input panel
 		public bool IsBetPanelVisible
 		{
 			get => _isBetPanelVisible;
 			set => this.RaiseAndSetIfChanged(ref _isBetPanelVisible, value);
 		}
-
 
 		// Disables the ability to bet when a game is started 
 		public bool BetButtonsEnabled
@@ -92,19 +92,11 @@ namespace ThrowingDiceGUI.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _betButtonsEnabled, value);
 		}
 
-
 		public int CurrentBet
 		{
 			get => _currentBet;
 			set => this.RaiseAndSetIfChanged(ref _currentBet, value);
 		}
-
-		//// houses the inputed value for fund deposit
-		//public int InputBet
-		//{
-		//	get => _inputBet;
-		//	set => this.RaiseAndSetIfChanged(ref _inputBet, value);
-		//}
 
 		// Cleans up all subscriptions when the ViewModel is no longer needed.
 		public void Dispose()

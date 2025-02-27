@@ -38,19 +38,17 @@ namespace ThrowingDiceGUI.Models
 		private int _betValue = 0;
 
 		private bool _isGameRoundStarted;
-		private bool _isGameRoundEnded;
+		//private bool _isGameRoundCompleted;
+		private bool _isReadyToReceiveBet;
+		private bool _isReadyToThrow;
 
 		private string _messageValue = "";
-
-
-
 
 		// Visibility boolean
 		/// TODO: THESE ARE TO BE REMOVED does not follow MVVM
 		private bool _isStartButtonVisible;
 		private bool _isNewRoundButtonVisible;
-		private bool _isBetPanelVisible;
-		private bool _isThrowButtonVisible;
+		
 
 
 
@@ -63,13 +61,14 @@ namespace ThrowingDiceGUI.Models
 		private BehaviorSubject<int> _betSubject = new BehaviorSubject<int>(0);
 		private BehaviorSubject<bool> _isGameRoundStartedSubject = new BehaviorSubject<bool>(false);
 		private BehaviorSubject<bool> _isGameRoundEndedSubject = new BehaviorSubject<bool>(false);
+		private BehaviorSubject<bool> _isReadyToReceivBetSubject = new BehaviorSubject<bool>(false);
+		private BehaviorSubject<bool> _isReadyToThrowSubject = new BehaviorSubject<bool>(false);
 		private BehaviorSubject<string> _messageSubject = new BehaviorSubject<string>("");
 
 		/// TODO: THESE ARE TO BE REMOVED does not follow MVVM
 		private BehaviorSubject<bool> _isStartButtonVisibleSubject = new BehaviorSubject<bool>(true);
 		private BehaviorSubject<bool> _isNewRoundButtonVisibleSubject = new BehaviorSubject<bool> (false);
-		private BehaviorSubject<bool> _isBetPanelVisibleSubject = new BehaviorSubject<bool>(false);
-		private BehaviorSubject<bool> _isThrowButtonVisibleSubject = new BehaviorSubject<bool>(false);
+		
 		
 		// This method will handel all game logic 
 		public GameLogic()
@@ -89,13 +88,14 @@ namespace ThrowingDiceGUI.Models
 			_currentFundsSubject = new BehaviorSubject<int>(_currentFundsValue);
 			_betSubject = new BehaviorSubject<int>(_betValue);
 			_isGameRoundStartedSubject = new BehaviorSubject<bool>(_isGameRoundStarted);
+			_isReadyToReceivBetSubject = new BehaviorSubject<bool>(_isReadyToReceiveBet);
+			_isReadyToThrowSubject = new BehaviorSubject<bool>(_isReadyToThrow);
 			_messageSubject = new BehaviorSubject<string>(_messageValue);
 
 
 			_isStartButtonVisibleSubject = new BehaviorSubject<bool>(_isStartButtonVisible);
 			_isNewRoundButtonVisibleSubject = new BehaviorSubject<bool>(_isNewRoundButtonVisible);
-			_isBetPanelVisibleSubject = new BehaviorSubject<bool>(_isBetPanelVisible);
-			_isThrowButtonVisibleSubject = new BehaviorSubject<bool>(_isThrowButtonVisible);
+			
 		}
 
 		// Expose an IObservable<int> so the ViewModel can subscribe to balance changes.
@@ -106,13 +106,14 @@ namespace ThrowingDiceGUI.Models
 		public IObservable<int> BetObservable => _betSubject.AsObservable();
 		public IObservable<bool> IsGameRoundStartedObject => _isGameRoundStartedSubject.AsObservable();
 		public IObservable<bool> IsGameRoundEndedObject => _isGameRoundEndedSubject.AsObservable();
+		public IObservable<bool> IsReadyToReceiveBetObject => _isReadyToReceivBetSubject.AsObservable();
+		public IObservable<bool> IsReadyToThrowObject => _isReadyToThrowSubject.AsObservable();
 		public IObservable<string> MessageObservable => _messageSubject.AsObservable();
 
 
 		public IObservable<bool> IsStartButtonVisibleObservable => _isStartButtonVisibleSubject.AsObservable();
 		public IObservable<bool> IsNewRoundButtonVisibleObservable => _isNewRoundButtonVisibleSubject.AsObservable();
-		public IObservable<bool> IsBetPanelVisibleObject => _isBetPanelVisibleSubject.AsObservable();
-		public IObservable<bool> IsThrowButtonVisibleObject => _isThrowButtonVisibleSubject.AsObservable();
+		
 
 
 		// Updates Values and notify subscibers
@@ -133,7 +134,7 @@ namespace ThrowingDiceGUI.Models
 		}
 
 		private void UpdatePlayerScore(int score) 
-		{
+		 {
 			_playerScore = score;
 			_playerScoreSubject.OnNext(score);
 		}
@@ -168,12 +169,23 @@ namespace ThrowingDiceGUI.Models
 			_isGameRoundStartedSubject.OnNext(tf);
 		}
 
+		private void UpdateIsReadyToReceiveBet(bool tf)
+		{
+			_isReadyToReceiveBet = tf;
+			_isReadyToReceivBetSubject.OnNext(tf);
+		}
+
 		private void UpdateMessage(string message)
 		{
 			_messageValue = Messages.Instance.GetMessage(message);
 			_messageSubject.OnNext(_messageValue);
 		}
 
+		private void UpdateIsReadyToThrow(bool tf)
+		{
+			_isReadyToThrow = tf;
+			_isReadyToThrowSubject.OnNext(_isReadyToThrow);
+		}
 
 		/// TODO: THESE ARE TO BE REMOVED does not follow MVVM
 		private void UpdateIsStartButtonVisible(bool tf)
@@ -188,17 +200,7 @@ namespace ThrowingDiceGUI.Models
 			_isNewRoundButtonVisibleSubject.OnNext(_isNewRoundButtonVisible);
 		}
 
-		private void UpdateIsBetPanelVisible(bool tf)
-		{
-			_isBetPanelVisible = tf;
-			_isBetPanelVisibleSubject.OnNext(_isBetPanelVisible);
-		}
-
-		private void UpdateIsThrowButtonVisible(bool tf)
-		{
-			_isThrowButtonVisible = tf;
-			_isThrowButtonVisibleSubject.OnNext(_isThrowButtonVisible);
-		}
+		
 
 		
 
@@ -208,7 +210,8 @@ namespace ThrowingDiceGUI.Models
 			UpdatePlayerScore(0);
 			UpdateNpcScore(0);
 			UpdateBet(0);
-			UpdateIsNewRoundButtonVisible(false);
+			UpdateIsGameRoundEnded(false);
+			UpdateIsNewRoundButtonVisible(false);// FIX this
 
 			if (_currentFundsValue < 100)
 			{
@@ -234,7 +237,7 @@ namespace ThrowingDiceGUI.Models
 		// Ask which bet to place
 		public void AskForPlaceBet()
 		{
-			UpdateIsBetPanelVisible(true);
+			UpdateIsReadyToReceiveBet(true);
 			UpdateIsGameRoundStarted(false);
 			UpdateMessage(_ASK_FOR_BET);
 		}
@@ -243,7 +246,7 @@ namespace ThrowingDiceGUI.Models
 		public void ABetIsChosen()
 		{
 			UpdateMessage(_THROW_DIE);
-			UpdateIsThrowButtonVisible(true);
+			UpdateIsReadyToThrow(true);
 		}
 
 		private void BetIsRegistered()
@@ -261,7 +264,7 @@ namespace ThrowingDiceGUI.Models
 		public void StartRound()
 		{
 			BetIsRegistered();
-			UpdateIsThrowButtonVisible(false);
+			UpdateIsReadyToThrow(false);
 			ThrowDiceSet(_playerDice);
 			ThrowDiceSet(_npcDice);
 			_playerDice = SorByDescending(_playerDice);
@@ -287,7 +290,7 @@ namespace ThrowingDiceGUI.Models
 
 			if (_playerScore != 2 && _npcScore != 2)
 			{
-				UpdateIsThrowButtonVisible(true);
+				UpdateIsReadyToThrow(true);
 			}
 			else
 			{
@@ -301,17 +304,17 @@ namespace ThrowingDiceGUI.Models
 		{
 			if (playerScore == 2) // Player Wins
 			{
-				UpdateIsThrowButtonVisible(false);
+				UpdateIsReadyToThrow(false);
 				UpdateIsNewRoundButtonVisible(true);
-				UpdateIsBetPanelVisible(false);
+				UpdateIsReadyToReceiveBet(false);
 				UpdateMessage(_PLAYER_GAME_WIN);
 				UpdateFunds(_currentFundsValue + (_betValue * 2));
 			}
 			else// Npc Wins
 			{
-				UpdateIsThrowButtonVisible(false);
+				UpdateIsReadyToThrow(false);
 				UpdateIsNewRoundButtonVisible(true);
-				UpdateIsBetPanelVisible(false);
+				UpdateIsReadyToReceiveBet(false);
 				UpdateMessage(_NPC_GAME_WIN);
 			}
 		}

@@ -21,7 +21,6 @@ namespace ThrowingDiceGUI.ViewModels
 
 		private readonly GameLogic _gameLogic;
 		private readonly GameViewModel _gameViewModel;
-		private bool _isGameStarted;
 		private string _inputFundsDeposit;
 		private string _inputErrorText;
 		private int _currentFundsValue;

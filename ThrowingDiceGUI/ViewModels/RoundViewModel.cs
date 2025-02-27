@@ -17,7 +17,7 @@ namespace ThrowingDiceGUI.ViewModels
 		private readonly GameLogic _gameLogic;
 		
 		private bool _isRoundStarted;
-		private bool _isThrowButtonVisible;
+		private bool _isThrowButtonEnabled;
 		private Bitmap _playerDiceImage1;
 		private Bitmap _playerDiceImage2;
 		private Bitmap _npcDiceImage1;
@@ -31,17 +31,14 @@ namespace ThrowingDiceGUI.ViewModels
 		public RoundViewModel(GameLogic gameLogic) 
 		{
 			_gameLogic = gameLogic;
-			IsThrowButtonVisible = false;
-
-			//// Display initial values
-			//UpdateDiceImages();
+			IsThrowButtonEnabled = false;
 
 			// "Throw" button has been pressed
 			ThrowCommand = ReactiveCommand.Create(_gameLogic.StartRound);
 
-			_gameLogic.IsThrowButtonVisibleObject.Subscribe(readyToThrow =>
+			_gameLogic.IsReadyToThrowObject.Subscribe(readyToThrow =>
 			{
-				IsThrowButtonVisible = readyToThrow;
+				IsThrowButtonEnabled = readyToThrow;
 			});
 
 			_gameLogic.GameDiceObservable.Subscribe( gameDice =>
@@ -51,10 +48,10 @@ namespace ThrowingDiceGUI.ViewModels
 		}
 
 		// Dice throw button 
-		public bool IsThrowButtonVisible
+		public bool IsThrowButtonEnabled
 		{
-			get => _isThrowButtonVisible;
-			set => this.RaiseAndSetIfChanged(ref _isThrowButtonVisible, value);
+			get => _isThrowButtonEnabled;
+			set => this.RaiseAndSetIfChanged(ref _isThrowButtonEnabled, value);
 		}
 
 		// When a round is started the bet buttons will be disabled

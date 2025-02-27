@@ -123,7 +123,7 @@
 			<StackPanel HorizontalAlignment="Center" Margin="10">
 				<Button Content="Throw" 
 						Command="{Binding ThrowCommand}"
-						IsVisible="{Binding IsThrowButtonVisible}"/> 
+						IsEnabled="{Binding IsThrowButtonEnabled}"/> 
 			</StackPanel>
 			
 			<!-- Player and NPC Dice, in two seperate panals -->
