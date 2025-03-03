@@ -56,19 +56,11 @@ namespace ThrowingDiceGUI.ViewModels
 				});
 			});
 
-
-			// Disables the bet buttons after first throw of new game (when game round starts)
-			_gameLogic.IsGameRoundStartedObject.Subscribe( isRoundStarted =>
+			_gameLogic.GameStateObservable.Subscribe(gameState => 
 			{
-				BetButtonsEnabled = !isRoundStarted;
-			}).DisposeWith(_disposables);
-
-
-			_gameLogic.IsReadyToReceiveBetObject.Subscribe(isBetPanelVisible =>
-			{
-				IsBetPanelVisible = isBetPanelVisible;
-			}).DisposeWith(_disposables);
-
+				BetButtonsEnabled = !gameState.IsGameRoundStarted;
+				IsBetPanelVisible = gameState.IsReadyToReceiveBet;
+			});
 		}
 
 		// Expose Validation Text for UI Binding

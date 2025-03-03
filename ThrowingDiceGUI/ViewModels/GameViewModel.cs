@@ -41,6 +41,7 @@ namespace ThrowingDiceGUI.ViewModels
 		private readonly GameLogic _gameLogic;
 		private string _message;
 		private bool _isGameStarted;
+		private bool _notEnoughFunds;
 		private bool _isStartButtonVisible;
 		private bool _isNewRoundButtonVisible;
 		private int _playerScore;
@@ -57,9 +58,9 @@ namespace ThrowingDiceGUI.ViewModels
 		{
 			// Sets the initial settings
 			IsGameStarted = false;
+			IsNewRoundButtonVisible = false; 
 			
-			IsNewRoundButtonVisible = false; // Remove when proper solution is found
-	
+
 			_gameLogic = gameLogic;
 
 	
@@ -71,17 +72,13 @@ namespace ThrowingDiceGUI.ViewModels
 
 			NewRoundCommand = ReactiveCommand.Create(_gameLogic.NewRound);
 
-			_gameLogic.MessageObservable.Subscribe( message =>
-				Message = message
-			).DisposeWith(_disposables);
-
-			_gameLogic.IsGameStartedObservable.Subscribe(isGameStarted =>
-				IsStartButtonVisible = !isGameStarted
-			).DisposeWith(_disposables);
-
-			_gameLogic.NewRoundCanbeStartedObservable.Subscribe( newRoundCanBeStarted =>
-				IsNewRoundButtonVisible = newRoundCanBeStarted
-			).DisposeWith(_disposables);	
+			_gameLogic.GameStateObservable.Subscribe(gameState =>
+			{
+				Message = gameState.MessageValue;
+				IsStartButtonVisible = !gameState.IsGameStarted;
+				IsNewRoundButtonVisible = gameState.NewRoundCanBeStarted;
+				
+			}).DisposeWith(_disposables);
 
 			_gameLogic.PlayerScoreObservable.Subscribe(playerScore =>
 			{
@@ -92,7 +89,6 @@ namespace ThrowingDiceGUI.ViewModels
 			{
 				NpcScore = npcScore;
 			}).DisposeWith(_disposables);
-
 		}
 
 		public bool IsGameStarted

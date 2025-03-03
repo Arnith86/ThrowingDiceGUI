@@ -1,15 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 using System.Reactive.Subjects;
-using System.Net.Http.Headers;
 using System.Reactive.Linq;
-using System.Reactive;
-using ReactiveUI;
-using DynamicData;
+
 
 namespace ThrowingDiceGUI.Models
 {
@@ -37,14 +30,6 @@ namespace ThrowingDiceGUI.Models
 		private int _currentFundsValue = 0;
 		private int _betValue = 0;
 
-		// Game states 
-		private bool _isGameStarted;
-		private bool _isGameRoundStarted;
-		private bool _isReadyToReceiveBet;
-		private bool _isReadyToThrow;
-		private bool _newRoundCanBeStarted;
-		private string _messageValue = "";
-		
 		
 		// A BehaviorSubject holds the latest value and emits it to new subscribers.
 		private BehaviorSubject<Dice[]> _gameDiceSubject = new BehaviorSubject<Dice[]>(Array.Empty<Dice>());
@@ -52,23 +37,30 @@ namespace ThrowingDiceGUI.Models
 		private BehaviorSubject<int> _npcScoreSubject = new BehaviorSubject<int>(0);
 		private BehaviorSubject<int> _currentFundsSubject = new BehaviorSubject<int>(0);
 		private BehaviorSubject<int> _betSubject = new BehaviorSubject<int>(0);
-		private BehaviorSubject<bool> _isGameStartedSubject = new BehaviorSubject<bool>(false);
-		private BehaviorSubject<bool> _isGameRoundStartedSubject = new BehaviorSubject<bool>(false);
-		private BehaviorSubject<bool> _isGameRoundEndedSubject = new BehaviorSubject<bool>(false);
-		private BehaviorSubject<bool> _isReadyToReceivBetSubject = new BehaviorSubject<bool>(false);
-		private BehaviorSubject<bool> _isReadyToThrowSubject = new BehaviorSubject<bool>(false);
-		private BehaviorSubject<bool> _newRoundCanBeStartedSubject = new BehaviorSubject<bool>(false);
-		private BehaviorSubject<string> _messageSubject = new BehaviorSubject<string>("");
+
+		/**
+		 * Object housing the current game state
+		 * bool IsGameStarted 
+		 * bool IsGameRoundStarted 
+		 * bool IsReadyToReceiveBet 
+		 * bool IsReadyToThrow 
+		 * bool NewRoundCanBeStarted
+		 * string MessageValue
+		 **/
+		private readonly BehaviorSubject<GameState> _gameStateSubject = new BehaviorSubject<GameState>(new GameState());
 
 				
 		// This method will handel all game logic 
 		public GameLogic()
 		{
 			// Displays welcome message on application start
-			UpdateMessage(_WELCOME);
-			UpdateIsGameRoundStarted(false);
-			UpdateNewRoundCanBeStarted(false);
-			
+			UpdateGameState( state =>
+			{
+				state.MessageValue = Messages.Instance.GetMessage(_WELCOME);
+				state.IsGameRoundStarted = false;
+				state.NewRoundCanBeStarted = false;
+			});
+
 			_playerDice = new Dice[] { new Dice(), new Dice() };
 			_npcDice = new Dice[] { new Dice(), new Dice() };
 			_gameDice = new Dice[] { _playerDice[0], _playerDice[1], _npcDice[0], _npcDice[1] };
@@ -78,12 +70,6 @@ namespace ThrowingDiceGUI.Models
 			_npcScoreSubject = new BehaviorSubject<int>(_npcScore);
 			_currentFundsSubject = new BehaviorSubject<int>(_currentFundsValue);
 			_betSubject = new BehaviorSubject<int>(_betValue);
-			_isGameStartedSubject = new BehaviorSubject<bool>(_isGameStarted);
-			_isGameRoundStartedSubject = new BehaviorSubject<bool>(_isGameRoundStarted);
-			_isReadyToReceivBetSubject = new BehaviorSubject<bool>(_isReadyToReceiveBet);
-			_isReadyToThrowSubject = new BehaviorSubject<bool>(_isReadyToThrow);
-			_newRoundCanBeStartedSubject = new BehaviorSubject<bool>(_newRoundCanBeStarted);
-			_messageSubject = new BehaviorSubject<string>(_messageValue);
 		}
 
 		
@@ -93,13 +79,7 @@ namespace ThrowingDiceGUI.Models
 		public IObservable<int> NpcScoreObservable => _npcScoreSubject.AsObservable();
 		public IObservable<int> CurrentFundsObservable => _currentFundsSubject.AsObservable();
 		public IObservable<int> BetObservable => _betSubject.AsObservable();
-		public IObservable<bool> IsGameStartedObservable => _isGameStartedSubject.AsObservable();
-		public IObservable<bool> IsGameRoundStartedObject => _isGameRoundStartedSubject.AsObservable();
-		public IObservable<bool> IsGameRoundEndedObject => _isGameRoundEndedSubject.AsObservable();
-		public IObservable<bool> IsReadyToReceiveBetObject => _isReadyToReceivBetSubject.AsObservable();
-		public IObservable<bool> IsReadyToThrowObject => _isReadyToThrowSubject.AsObservable();
-		public IObservable<bool> NewRoundCanbeStartedObservable => _newRoundCanBeStartedSubject.AsObservable();
-		public IObservable<string> MessageObservable => _messageSubject.AsObservable();
+		public IObservable<GameState> GameStateObservable => _gameStateSubject.AsObservable();
 
 		
 		// Updates Values and notify subscibers
@@ -143,54 +123,31 @@ namespace ThrowingDiceGUI.Models
 			_betSubject.OnNext(amount);
 		}
 
-		private void UpdateIsGameStarted(bool tf)
-		{
-			_isGameStarted = tf;
-			_isGameStartedSubject.OnNext(tf);
-		}
-
-		private void UpdateIsGameRoundStarted(bool tf)
-		{
-			_isGameRoundStarted = tf;
-			_isGameRoundStartedSubject.OnNext(tf);
-		}
-
-		private void UpdateIsReadyToReceiveBet(bool tf)
-		{
-			_isReadyToReceiveBet = tf;
-			_isReadyToReceivBetSubject.OnNext(tf);
-		}
-
-		private void UpdateMessage(string message)
-		{
-			_messageValue = Messages.Instance.GetMessage(message);
-			_messageSubject.OnNext(_messageValue);
-		}
-
-		private void UpdateIsReadyToThrow(bool tf)
-		{
-			_isReadyToThrow = tf;
-			_isReadyToThrowSubject.OnNext(_isReadyToThrow);
-		}
-
-		private void UpdateNewRoundCanBeStarted(bool tf)
-		{
-			_newRoundCanBeStarted = tf;
-			_newRoundCanBeStartedSubject.OnNext(_newRoundCanBeStarted);
-		}
-
 		
+		// Updates GameState and notify subscribers
+		// Action<GameState> means "a method that takes a GameState and modifies it, but doesn't return anything.
+		private void UpdateGameState(Action<GameState> updateAction)
+		{
+			// Specifies the object to be updated 
+			var newState = _gameStateSubject.Value;
+			// Updates the object with the new state
+			updateAction(newState);
+			// Notify subscribers of change
+			_gameStateSubject.OnNext(newState);
+		}
+
 		// If not enough funds, sends to "AskForDeposit" method, otherwise "PlaceBet"
 		public void NewRound()
 		{
 			UpdatePlayerScore(0);
 			UpdateNpcScore(0);
 			UpdateBet(0);
-			UpdateNewRoundCanBeStarted(false);
+			//UpdateGameState(state => state.NewRoundCanBeStarted = false);
 
 			if (_currentFundsValue < 100)
 			{
 				///TODO: add secondery message stating that funds are insufficiant 
+				
 				AskForDeposit();
 			}
 			else
@@ -203,31 +160,41 @@ namespace ThrowingDiceGUI.Models
 		// Ask for deposit to funds
 		public void AskForDeposit()
 		{
-			UpdateMessage(_ASK_FOR_DEPOSIT);
-			UpdateIsGameStarted(true);
+			UpdateGameState(state =>
+			{
+				state.MessageValue = Messages.Instance.GetMessage(_ASK_FOR_DEPOSIT);
+				state.IsGameStarted = true;
+				state.NewRoundCanBeStarted = false;
+			});
 		}
 
 		// Ask which bet to place
 		public void AskForPlaceBet()
 		{
-			UpdateIsReadyToReceiveBet(true);
-			UpdateIsGameRoundStarted(false);
-			UpdateMessage(_ASK_FOR_BET);
+			UpdateGameState(state =>
+			{
+				state.IsReadyToReceiveBet = true;
+				state.IsGameRoundStarted = false;
+				state.MessageValue = Messages.Instance.GetMessage(_ASK_FOR_BET);		
+			});
 		}
 
 		// After successfull registration of bet, sets up for next stage of game
 		public void ABetIsChosen()
 		{
-			UpdateMessage(_THROW_DIE);
-			UpdateIsReadyToThrow(true);
+			UpdateGameState(state => 
+			{
+				state.MessageValue = Messages.Instance.GetMessage(_THROW_DIE);
+				state.IsReadyToThrow = true;
+			});
 		}
 
 		// Bet can no longer be changed 
 		private void BetIsRegistered()
 		{
-			if (!_isGameRoundStarted)
+			if (!_gameStateSubject.Value.IsGameRoundStarted)
 			{
-				UpdateIsGameRoundStarted(true);// when true, bet buttons are disabled
+				UpdateGameState(state => { state.IsGameRoundStarted = true;  });
 				UpdateFunds(_currentFundsValue - _betValue);
 				_currentFundsSubject.OnNext(_currentFundsValue);
 			}
@@ -238,7 +205,7 @@ namespace ThrowingDiceGUI.Models
 		public void StartRound()
 		{
 			BetIsRegistered();
-			UpdateIsReadyToThrow(false);
+			UpdateGameState(state => { state.IsReadyToThrow = false; });
 			ThrowDiceSet(_playerDice);
 			ThrowDiceSet(_npcDice);
 			_playerDice = SorByDescending(_playerDice);
@@ -249,43 +216,53 @@ namespace ThrowingDiceGUI.Models
 			// Both player and npc dice are equal, a new throw will be conducted 
 			if (CheckIdenticalDiceSet(_playerDice, _npcDice))
 			{
-				UpdateMessage(_NEW_THROW);
+				UpdateGameState(state => { state.MessageValue = Messages.Instance.GetMessage(_NEW_THROW);  });
 			}
 			else if (RoundEvaluation(_playerDice, _npcDice))
 			{
-				UpdateMessage(_PLAYER_ROUND_WIN);
+				UpdateGameState(state => { state.MessageValue = Messages.Instance.GetMessage(_PLAYER_ROUND_WIN); });
 				UpdatePlayerScore( ++_playerScore );
 			}
 			else
 			{
-				UpdateMessage(_NPC_ROUND_WIN);
+				UpdateGameState(state => { state.MessageValue = Messages.Instance.GetMessage(_NPC_ROUND_WIN); });
 				UpdateNpcScore( ++_npcScore );
 			}
 
 			if (_playerScore != 2 && _npcScore != 2)
 			{
-				UpdateIsReadyToThrow(true);
+				UpdateGameState(state => { state.IsReadyToThrow = true; });
 			}
 			else
 			{
-				UpdateIsGameRoundStarted(false);
+				UpdateGameState(state => { state.IsGameRoundStarted = false; });
 				CurrentGameEnded(_playerScore); 
 			}
 		}
 
 		private void CurrentGameEnded(int playerScore)
 		{
-			UpdateIsReadyToThrow(false);
-			UpdateNewRoundCanBeStarted(true);
-			UpdateIsReadyToReceiveBet(false);
+			UpdateGameState(state => 
+			{
+				// If not enough funds are available a new round cannot be started
+				state.NewRoundCanBeStarted = _currentFundsSubject.Value < 100 ? false : true;
 
-			// If playerscore == 2, display player win, else npc win
-			UpdateMessage(playerScore == 2 ? _PLAYER_GAME_WIN : _NPC_GAME_WIN);
+				state.IsReadyToThrow = false;
+				state.IsReadyToReceiveBet = false;
+				
+				string winnerMessage = "";
+
+				// If playerscore == 2, display player win, else npc win
+				winnerMessage = playerScore == 2 ? _PLAYER_GAME_WIN : _NPC_GAME_WIN;
+				
+				state.MessageValue = Messages.Instance.GetMessage(winnerMessage);
+			});
 
 			// Player Wins, update funds
 			if (playerScore == 2) UpdateFunds(_currentFundsValue + (_betValue * 2));
 		}
 		
+
 		// Handles a single round of dice throws 
 		public bool RoundEvaluation(Dice[] playerDice, Dice[] npcDice)
 		{
@@ -306,11 +283,13 @@ namespace ThrowingDiceGUI.Models
 			return playerHighest > npcHighest;
 		}
 
+
 		// Check if dice set are identical (they must be sorted first)
 		public bool CheckIdenticalDiceSet(Dice[] playerDice, Dice[] npcDice)
 		{
 			return (playerDice[0].DiceValue == npcDice[0].DiceValue && playerDice[1].DiceValue == npcDice[1].DiceValue);	
 		}
+
 
 		// Sort the array with highest valued element first 
 		public Dice[] SorByDescending(Dice[] dices)
@@ -318,13 +297,11 @@ namespace ThrowingDiceGUI.Models
 			return dices.OrderByDescending(n => n.DiceValue).ToArray();
 		}
 
+
 		// Throws both dices 
 		public Dice[] ThrowDiceSet(Dice[] dices)
 		{
-			foreach (Dice dice in dices)
-			{
-				dice.ThrowDice();
-			}
+			foreach (Dice dice in dices) dice.ThrowDice();
 
 			return dices;
 		}

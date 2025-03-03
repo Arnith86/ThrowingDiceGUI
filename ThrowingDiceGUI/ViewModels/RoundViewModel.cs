@@ -36,10 +36,10 @@ namespace ThrowingDiceGUI.ViewModels
 			// "Throw" button has been pressed
 			ThrowCommand = ReactiveCommand.Create(_gameLogic.StartRound);
 
-			_gameLogic.IsReadyToThrowObject.Subscribe(readyToThrow =>
+			_gameLogic.GameStateObservable.Subscribe(gameState => 
 			{
-				IsThrowButtonEnabled = readyToThrow;
-			});
+				IsThrowButtonEnabled = gameState.IsReadyToThrow;
+			}).DisposeWith(_disposables);
 
 			_gameLogic.GameDiceObservable.Subscribe( gameDice =>
 			{
