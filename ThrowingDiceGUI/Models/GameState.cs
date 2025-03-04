@@ -9,11 +9,19 @@ namespace ThrowingDiceGUI.Models
 	// Holds the current state of the game
 	public class GameState
 	{
+
+		public int CurrentFunds { get; set; } = 0;
+		public int Bet { get; set; } = 0;
+		public bool IsAwaitingDeposit {  get; set; }
+		public bool IsAwaitingBet { get; set; }
+		public bool IsAwaitingThrow { get; set; }
 		public bool IsGameStarted { get; set; }
 		public bool IsGameRoundStarted { get; set; }
-		public bool IsReadyToReceiveBet { get; set; }
-		public bool IsReadyToThrow { get; set; }
-		public bool NewRoundCanBeStarted { get; set; }
 		public string MessageValue { get; set; } = string.Empty;
+		public bool NewRoundCanBeStarted { get; set; }
+
+
+		
+
 	}
 }

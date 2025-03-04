@@ -20,6 +20,7 @@ namespace ThrowingDiceGUI.ViewModels
 		private static string _BET_BALANCE_ERROR = "Bet_Balance_Error";
 
 		private readonly GameLogic _gameLogic;
+
 		private bool _isBetPanelVisible;
 		private bool _betButtonsEnabled;
 		private int _currentBet;
@@ -59,7 +60,7 @@ namespace ThrowingDiceGUI.ViewModels
 			_gameLogic.GameStateObservable.Subscribe(gameState => 
 			{
 				BetButtonsEnabled = !gameState.IsGameRoundStarted;
-				IsBetPanelVisible = gameState.IsReadyToReceiveBet;
+				IsBetPanelVisible = gameState.IsAwaitingBet;
 			});
 		}
 

@@ -38,7 +38,7 @@ namespace ThrowingDiceGUI.ViewModels
 
 			_gameLogic.GameStateObservable.Subscribe(gameState => 
 			{
-				IsThrowButtonEnabled = gameState.IsReadyToThrow;
+				IsThrowButtonEnabled = gameState.IsAwaitingThrow;
 			}).DisposeWith(_disposables);
 
 			_gameLogic.GameDiceObservable.Subscribe( gameDice =>

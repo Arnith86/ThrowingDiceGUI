@@ -40,8 +40,6 @@ namespace ThrowingDiceGUI.ViewModels
 
 		private readonly GameLogic _gameLogic;
 		private string _message;
-		private bool _isGameStarted;
-		private bool _notEnoughFunds;
 		private bool _isStartButtonVisible;
 		private bool _isNewRoundButtonVisible;
 		private int _playerScore;
@@ -57,7 +55,6 @@ namespace ThrowingDiceGUI.ViewModels
 		public GameViewModel(GameLogic gameLogic)
 		{
 			// Sets the initial settings
-			IsGameStarted = false;
 			IsNewRoundButtonVisible = false; 
 			
 
@@ -65,12 +62,12 @@ namespace ThrowingDiceGUI.ViewModels
 
 	
 			// The "Start" button has been pressed, starting the game proper.
-			StartGameCommand = ReactiveCommand.Create(() => { 
-				IsGameStarted = true; 
-				_gameLogic.NewRound(); 
+			StartGameCommand = ReactiveCommand.Create(() => {  
+				//_gameLogic.NewRound();
+				_gameLogic.StartGame();
 			});
 
-			NewRoundCommand = ReactiveCommand.Create(_gameLogic.NewRound);
+			//NewRoundCommand = ReactiveCommand.Create(_gameLogic.NewRound);   // REMOVED for testing reasons 
 
 			_gameLogic.GameStateObservable.Subscribe(gameState =>
 			{
@@ -89,12 +86,6 @@ namespace ThrowingDiceGUI.ViewModels
 			{
 				NpcScore = npcScore;
 			}).DisposeWith(_disposables);
-		}
-
-		public bool IsGameStarted
-		{
-			get => _isGameStarted;
-			set => this.RaiseAndSetIfChanged(ref _isGameStarted, value);
 		}
 
 		public int PlayerScore

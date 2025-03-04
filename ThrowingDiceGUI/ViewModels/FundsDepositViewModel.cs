@@ -43,9 +43,10 @@ namespace ThrowingDiceGUI.ViewModels
 			
 				if (InputFundsRegex.IsMatch(deposit) && int.TryParse(deposit, out int depositAmount) && (depositAmount >= 100 && depositAmount <= 5000))
 				{
-					_gameLogic.UpdateFunds(depositAmount);
+					_gameLogic.SetIncomingDeposit(depositAmount);
+					//_gameLogic.UpdateFunds(depositAmount);
 					IsFundPanelVisible = false;
-					_gameLogic.AskForPlaceBet();
+					_gameLogic.AskForBet();
 					InputErrorText = string.Empty;
 				}
 				else
@@ -55,31 +56,33 @@ namespace ThrowingDiceGUI.ViewModels
 			});
 
 
-			// Subscribe to balance updates from the GameLogic
-			_gameLogic.CurrentFundsObservable.Subscribe(Funds =>
-			{
-				// Update the ViewModel when the balance changes
-				CurrentFunds = Funds;
-			}).DisposeWith(_disposables);
+			//// Subscribe to balance updates from the GameLogic
+			//_gameLogic.CurrentFundsObservable.Subscribe(Funds =>
+			//{
+			//	// Update the ViewModel when the balance changes
+			//	CurrentFunds = Funds;
+			//}).DisposeWith(_disposables);
 
 
-			//// Keeps track on if a gameround in under way.
-			//// If active, funds cannot be added and no bets can be placed
+			// Updates gamestate values relevent for this viewmodel
 			_gameLogic.GameStateObservable.Subscribe(gameState =>
 			{
-				IsGameRoundStarted = gameState.IsGameRoundStarted;
+				//IsGameRoundStarted = gameState.IsGameRoundStarted;
 				IsGameStarted = gameState.IsGameStarted;
+				CurrentFunds = gameState.CurrentFunds;
+
 			}).DisposeWith(_disposables);
 
 
-			// Funds panel is only visible if funds are less than 100, game has started and no gameround is active.
+			// Funds deposit view will only be shown when funds are less then 100 and the game is started
+			// This initiates the funds deposit sequence, which ends InputFundsDepositCommand
 			this.WhenAnyValue(
 				FundsDepositViewModel => FundsDepositViewModel.CurrentFunds,
-				FundsDepositViewModel => FundsDepositViewModel.IsGameRoundStarted,
 				FundsDepositViewModel => FundsDepositViewModel.IsGameStarted)
-				.Subscribe(Values =>
+			.Subscribe(Values =>
 			{
-				IsFundPanelVisible = Values.Item1 < 100 && !Values.Item2 && Values.Item3;
+				if (Values.Item1 < 100 && Values.Item2) _gameLogic.AskForDeposit();
+				IsFundPanelVisible = Values.Item1 < 100 && Values.Item2;
 
 			}).DisposeWith(_disposables);
 
@@ -110,12 +113,12 @@ namespace ThrowingDiceGUI.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _isGameStarted, value);
 		}
 
-		// Active if bet has been regestered and first throw of round has been conducted
-		public bool IsGameRoundStarted
-		{
-			get => _isGameRoundStarted;
-			set => this.RaiseAndSetIfChanged(ref _isGameRoundStarted, value);
-		}
+		//// Active if bet has been regestered and first throw of round has been conducted
+		//public bool IsGameRoundStarted
+		//{
+		//	get => _isGameRoundStarted;
+		//	set => this.RaiseAndSetIfChanged(ref _isGameRoundStarted, value);
+		//}
 
 		public int CurrentFunds
 		{

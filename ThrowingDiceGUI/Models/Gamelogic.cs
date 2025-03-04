@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 
 namespace ThrowingDiceGUI.Models
@@ -27,8 +28,8 @@ namespace ThrowingDiceGUI.Models
 		private int _npcScore = 0;
 
 		// Holds the lates values of balance funds and bet
-		private int _currentFundsValue = 0;
-		private int _betValue = 0;
+		//private int _currentFundsValue = 0;
+		//private int _betValue = 0;
 
 		
 		// A BehaviorSubject holds the latest value and emits it to new subscribers.
@@ -40,6 +41,8 @@ namespace ThrowingDiceGUI.Models
 
 		/**
 		 * Object housing the current game state
+		 * int CurrentFunds
+		 * int Bet
 		 * bool IsGameStarted 
 		 * bool IsGameRoundStarted 
 		 * bool IsReadyToReceiveBet 
@@ -49,7 +52,10 @@ namespace ThrowingDiceGUI.Models
 		 **/
 		private readonly BehaviorSubject<GameState> _gameStateSubject = new BehaviorSubject<GameState>(new GameState());
 
-				
+		// Filed to hold the pending deposit input
+		private TaskCompletionSource<int> _depositTcs;
+		//private TaskCompletionSource<int> _betTcs;
+		
 		// This method will handel all game logic 
 		public GameLogic()
 		{
@@ -68,8 +74,8 @@ namespace ThrowingDiceGUI.Models
 			_gameDiceSubject = new BehaviorSubject<Dice[]>(_gameDice);
 			_playerScoreSubject = new BehaviorSubject<int>(_playerScore);
 			_npcScoreSubject = new BehaviorSubject<int>(_npcScore);
-			_currentFundsSubject = new BehaviorSubject<int>(_currentFundsValue);
-			_betSubject = new BehaviorSubject<int>(_betValue);
+			//_currentFundsSubject = new BehaviorSubject<int>(_currentFundsValue);
+			//_betSubject = new BehaviorSubject<int>(_betValue);
 		}
 
 		
@@ -80,7 +86,7 @@ namespace ThrowingDiceGUI.Models
 		public IObservable<int> CurrentFundsObservable => _currentFundsSubject.AsObservable();
 		public IObservable<int> BetObservable => _betSubject.AsObservable();
 		public IObservable<GameState> GameStateObservable => _gameStateSubject.AsObservable();
-
+	
 		
 		// Updates Values and notify subscibers
 		private void UpdateGameDice()
@@ -111,19 +117,21 @@ namespace ThrowingDiceGUI.Models
 			_npcScoreSubject.OnNext(score);
 		}
 
-		public void UpdateFunds(int amount)
-		{
-			_currentFundsValue = amount;
-			_currentFundsSubject.OnNext(amount);
-		}
+		//public void UpdateFunds(int amount)
+		//{
+		//	UpdateGameState( state => state.CurrentFunds = amount);
+		//	//_currentFundsValue = amount;
+		//	//_currentFundsSubject.OnNext(amount);
+		//}
 
 		public void UpdateBet(int amount)
 		{
-			_betValue = amount;
-			_betSubject.OnNext(amount);
+			UpdateGameState( state => state.Bet = amount);
+			//_betValue = amount;
+			//_betSubject.OnNext(amount);
 		}
 
-		
+
 		// Updates GameState and notify subscribers
 		// Action<GameState> means "a method that takes a GameState and modifies it, but doesn't return anything.
 		private void UpdateGameState(Action<GameState> updateAction)
@@ -136,44 +144,71 @@ namespace ThrowingDiceGUI.Models
 			_gameStateSubject.OnNext(newState);
 		}
 
-		// If not enough funds, sends to "AskForDeposit" method, otherwise "PlaceBet"
-		public void NewRound()
+		// Changes game state to game is started. (Welcome message has been displayed) 
+		public void StartGame()
 		{
-			UpdatePlayerScore(0);
-			UpdateNpcScore(0);
-			UpdateBet(0);
-			//UpdateGameState(state => state.NewRoundCanBeStarted = false);
-
-			if (_currentFundsValue < 100)
-			{
-				///TODO: add secondery message stating that funds are insufficiant 
-				
-				AskForDeposit();
-			}
-			else
-			{
-				AskForPlaceBet();
-			}
+			UpdateGameState(state => state.IsGameStarted = true);
 		}
 
-		// Starts the game
-		// Ask for deposit to funds
-		public void AskForDeposit()
+		// If not enough funds, sends to "AskForDeposit" method, otherwise "PlaceBet"
+		//public void NewRound()
+		//{
+		//	UpdatePlayerScore(0);
+		//	UpdateNpcScore(0);
+		//	UpdateBet(0);
+		//	//UpdateGameState(state => state.NewRoundCanBeStarted = false);
+
+		//	if (_currentFundsValue < 100)
+		//	{
+		//		///TODO: add secondery message stating that funds are insufficiant 
+				
+		//		AskForDeposit();
+		//	}
+		//	else
+		//	{
+		//		AskForBet();
+		//	}
+		//}
+
+
+		// Async method that ask for deposit to funds, waits for input, then updates current funds
+		public async Task AskForDeposit()
 		{
 			UpdateGameState(state =>
 			{
 				state.MessageValue = Messages.Instance.GetMessage(_ASK_FOR_DEPOSIT);
-				state.IsGameStarted = true;
-				state.NewRoundCanBeStarted = false;
+				//state.IsGameStarted = true;
+				//state.NewRoundCanBeStarted = false;
+			});
+
+			// Creates a new TaskCompletionSource for deposit input 
+			_depositTcs = new TaskCompletionSource<int>();
+
+			// Asynchronoisly wait until the deposit is provided
+			int deposit = await _depositTcs.Task;
+
+			// Updates funds and ends fund deposit sequence 
+			UpdateGameState(state =>
+			{
+				state.CurrentFunds = deposit;
+				state.IsAwaitingDeposit = false;
+				//state.IsAwaitingBet = true;
 			});
 		}
 
+		// this method is called by the viewmodel when deposit input is ready
+		// Completes the TasKCompletionSource so AskForDepositAsync can continue 
+		public void SetIncomingDeposit(int deposit)
+		{
+			_depositTcs?.TrySetResult(deposit);
+		}
+
 		// Ask which bet to place
-		public void AskForPlaceBet()
+		public async void AskForBet()
 		{
 			UpdateGameState(state =>
 			{
-				state.IsReadyToReceiveBet = true;
+				state.IsAwaitingBet = true;
 				state.IsGameRoundStarted = false;
 				state.MessageValue = Messages.Instance.GetMessage(_ASK_FOR_BET);		
 			});
@@ -185,7 +220,7 @@ namespace ThrowingDiceGUI.Models
 			UpdateGameState(state => 
 			{
 				state.MessageValue = Messages.Instance.GetMessage(_THROW_DIE);
-				state.IsReadyToThrow = true;
+				state.IsAwaitingThrow = true;
 			});
 		}
 
@@ -194,9 +229,10 @@ namespace ThrowingDiceGUI.Models
 		{
 			if (!_gameStateSubject.Value.IsGameRoundStarted)
 			{
-				UpdateGameState(state => { state.IsGameRoundStarted = true;  });
-				UpdateFunds(_currentFundsValue - _betValue);
-				_currentFundsSubject.OnNext(_currentFundsValue);
+				UpdateGameState( state => {
+					state.IsGameRoundStarted = true;
+					state.CurrentFunds = ( state.CurrentFunds - state.Bet);
+				});
 			}
 		}
 
@@ -205,9 +241,11 @@ namespace ThrowingDiceGUI.Models
 		public void StartRound()
 		{
 			BetIsRegistered();
-			UpdateGameState(state => { state.IsReadyToThrow = false; });
+			UpdateGameState( state => state.IsAwaitingThrow = false );
+			
 			ThrowDiceSet(_playerDice);
 			ThrowDiceSet(_npcDice);
+			
 			_playerDice = SorByDescending(_playerDice);
 			_npcDice = SorByDescending(_npcDice);
 
@@ -216,26 +254,29 @@ namespace ThrowingDiceGUI.Models
 			// Both player and npc dice are equal, a new throw will be conducted 
 			if (CheckIdenticalDiceSet(_playerDice, _npcDice))
 			{
-				UpdateGameState(state => { state.MessageValue = Messages.Instance.GetMessage(_NEW_THROW);  });
+				UpdateGameState( state => state.MessageValue = Messages.Instance.GetMessage(_NEW_THROW) );
 			}
 			else if (RoundEvaluation(_playerDice, _npcDice))
 			{
-				UpdateGameState(state => { state.MessageValue = Messages.Instance.GetMessage(_PLAYER_ROUND_WIN); });
+				UpdateGameState( state => state.MessageValue = Messages.Instance.GetMessage(_PLAYER_ROUND_WIN) );
 				UpdatePlayerScore( ++_playerScore );
 			}
 			else
 			{
-				UpdateGameState(state => { state.MessageValue = Messages.Instance.GetMessage(_NPC_ROUND_WIN); });
+				UpdateGameState( state => state.MessageValue = Messages.Instance.GetMessage(_NPC_ROUND_WIN) );
 				UpdateNpcScore( ++_npcScore );
 			}
 
 			if (_playerScore != 2 && _npcScore != 2)
 			{
-				UpdateGameState(state => { state.IsReadyToThrow = true; });
+				UpdateGameState( state =>  state.IsAwaitingThrow = true );
 			}
 			else
 			{
-				UpdateGameState(state => { state.IsGameRoundStarted = false; });
+				UpdateGameState( state =>
+				{
+					state.IsGameRoundStarted = false;
+				});
 				CurrentGameEnded(_playerScore); 
 			}
 		}
@@ -246,9 +287,9 @@ namespace ThrowingDiceGUI.Models
 			{
 				// If not enough funds are available a new round cannot be started
 				state.NewRoundCanBeStarted = _currentFundsSubject.Value < 100 ? false : true;
-
-				state.IsReadyToThrow = false;
-				state.IsReadyToReceiveBet = false;
+				state.IsAwaitingBet = state.NewRoundCanBeStarted == false ? true : false; 
+				state.IsAwaitingThrow = false;
+				
 				
 				string winnerMessage = "";
 
@@ -259,7 +300,7 @@ namespace ThrowingDiceGUI.Models
 			});
 
 			// Player Wins, update funds
-			if (playerScore == 2) UpdateFunds(_currentFundsValue + (_betValue * 2));
+			if (playerScore == 2) UpdateGameState( state => state.CurrentFunds += (state.Bet * 2)); 
 		}
 		
 
