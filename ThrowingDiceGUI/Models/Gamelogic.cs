@@ -19,7 +19,6 @@ namespace ThrowingDiceGUI.Models
 		private static string _PLAYER_GAME_WIN = "Player_Game_Win";
 		private static string _NPC_GAME_WIN = "Npc_Game_Win";
 
-		//private Player player; // should i keep this? 
 		private Dice[] _playerDice;
 		private Dice[] _npcDice;
 		private Dice[] _gameDice;
@@ -27,11 +26,6 @@ namespace ThrowingDiceGUI.Models
 		private int _playerScore = 0;
 		private int _npcScore = 0;
 
-		// Holds the lates values of balance funds and bet
-		//private int _currentFundsValue = 0;
-		//private int _betValue = 0;
-
-		
 		// A BehaviorSubject holds the latest value and emits it to new subscribers.
 		private BehaviorSubject<Dice[]> _gameDiceSubject = new BehaviorSubject<Dice[]>(Array.Empty<Dice>());
 		private BehaviorSubject<int> _playerScoreSubject = new BehaviorSubject<int>(0);

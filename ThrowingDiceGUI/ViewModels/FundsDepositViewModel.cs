@@ -31,10 +31,9 @@ namespace ThrowingDiceGUI.ViewModels
 		private static readonly Regex InputFundsRegex = new Regex(@"^\d+$");
 		private readonly CompositeDisposable _disposables = new CompositeDisposable();
 
-		public FundsDepositViewModel(GameLogic gameLogic, GameViewModel gameViewModel) 
+		public FundsDepositViewModel(GameLogic gameLogic) 
 		{
 			_gameLogic = gameLogic;
-			//_gameViewModel = gameViewModel;
 			InputErrorText = string.Empty;
 
 			// Validates and Assignes Funds value
@@ -44,7 +43,6 @@ namespace ThrowingDiceGUI.ViewModels
 				if (InputFundsRegex.IsMatch(deposit) && int.TryParse(deposit, out int depositAmount) && (depositAmount >= 100 && depositAmount <= 5000))
 				{
 					_gameLogic.SetIncomingDeposit(depositAmount);
-					//_gameLogic.UpdateFunds(depositAmount);
 					IsFundPanelVisible = false;
 					_gameLogic.AskForBet();
 					InputErrorText = string.Empty;
@@ -54,14 +52,6 @@ namespace ThrowingDiceGUI.ViewModels
 					InputErrorText = Messages.Instance.GetMessage(_DEPOSIT_ERROR);
 				}
 			});
-
-
-			//// Subscribe to balance updates from the GameLogic
-			//_gameLogic.CurrentFundsObservable.Subscribe(Funds =>
-			//{
-			//	// Update the ViewModel when the balance changes
-			//	CurrentFunds = Funds;
-			//}).DisposeWith(_disposables);
 
 
 			// Updates gamestate values relevent for this viewmodel

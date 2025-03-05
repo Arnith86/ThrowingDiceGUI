@@ -62,8 +62,7 @@ namespace ThrowingDiceGUI.ViewModels
 
 	
 			// The "Start" button has been pressed, starting the game proper.
-			StartGameCommand = ReactiveCommand.Create(() => {  
-				//_gameLogic.NewRound();
+			StartGameCommand = ReactiveCommand.Create(() => { 
 				_gameLogic.StartGame();
 			});
 

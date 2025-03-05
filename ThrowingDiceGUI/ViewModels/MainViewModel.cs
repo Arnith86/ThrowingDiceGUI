@@ -16,7 +16,7 @@ public class MainViewModel : ViewModelBase
 		isGameStarted = false;
 
 		GameVM = new GameViewModel(_gameLogic);
-		FundsDepositVM = new FundsDepositViewModel(_gameLogic, GameVM);
+		FundsDepositVM = new FundsDepositViewModel(_gameLogic);
 		BetVM = new BetViewModel(_gameLogic);
 		RoundVM = new RoundViewModel(_gameLogic);
 	}
