@@ -23,6 +23,8 @@ namespace ThrowingDiceGUI.ViewModels
 
 		private bool _isBetPanelVisible;
 		private bool _betButtonsEnabled;
+		private bool _isBetLockedIn;
+		private int _currentFunds = 0;
 		private int _currentBet;
 		private string _inputErrorText;
 		private readonly CompositeDisposable _disposables = new CompositeDisposable();
@@ -39,29 +41,57 @@ namespace ThrowingDiceGUI.ViewModels
 
 			InputBetCommand = ReactiveCommand.Create<string>(inputBet =>
 			{
-				// a single temporary instance of the subscribed value is collected but not stored in the class
-				_gameLogic.CurrentFundsObservable.Take(1).Subscribe(currentFundsValue =>
+				// Validates bet and sets value if valid 
+				if (int.TryParse(inputBet, out int bet) && bet <= CurrentFunds)
 				{
-					// Validates bet and sets value if valid 
-					if (int.TryParse(inputBet, out int bet) && bet <= currentFundsValue)
-					{
-						CurrentBet = bet;
-						_gameLogic.UpdateBet(CurrentBet);
-						_gameLogic.ABetIsChosen();
-						InputErrorText = string.Empty;
-					}
-					else
-					{
-						InputErrorText = Messages.Instance.GetMessage(_BET_BALANCE_ERROR);
-					}
-				});
+					CurrentBet = bet;
+					_gameLogic.UpdateBet(CurrentBet);
+					_gameLogic.ABetIsChosen();
+					InputErrorText = string.Empty;
+				}
+				else
+				{
+					InputErrorText = Messages.Instance.GetMessage(_BET_BALANCE_ERROR);
+				}
+				
 			});
 
 			_gameLogic.GameStateObservable.Subscribe(gameState => 
 			{
-				BetButtonsEnabled = !gameState.IsGameRoundStarted;
-				IsBetPanelVisible = gameState.IsAwaitingBet;
+				CurrentFunds = gameState.CurrentFunds;
+				BetButtonsEnabled = !gameState.IsBetLockedIn;
+				IsBetLockedIn = gameState.IsBetLockedIn;
 			});
+
+
+			// Handles the visibility of the bet panel, and initiates the bet process if there are enough funds
+			this.WhenAnyValue(
+				BetViewModel => BetViewModel.CurrentFunds,
+				BetViewModel => BetViewModel.CurrentBet,
+				BetViewModel => BetViewModel.IsBetLockedIn
+			).Subscribe(Values =>
+			{
+				// Starts bet process, Panel visible
+				// Enough funds and no active game round is started. 
+				if (Values.Item1 >= 100 && !IsBetLockedIn)
+				{
+					_gameLogic.AskForBet();
+					IsBetPanelVisible = true;
+				}
+				// A bet is locked in, panel visible
+				else if (Values.Item2 != 0 && IsBetLockedIn)
+				{
+					IsBetPanelVisible = true;
+				}
+				// Either not enough funds for bet, or new game round not yet started
+				else
+				{ 
+					IsBetPanelVisible = false;
+				}
+				
+
+			}).DisposeWith(_disposables);
+
 		}
 
 		// Expose Validation Text for UI Binding
@@ -69,7 +99,13 @@ namespace ThrowingDiceGUI.ViewModels
 		{
 			get => _inputErrorText;
 			private set => this.RaiseAndSetIfChanged(ref _inputErrorText, value);
-		} 
+		}
+
+		public int CurrentBet
+		{
+			get => _currentBet;
+			set => this.RaiseAndSetIfChanged(ref _currentBet, value);
+		}
 
 		// Changes visibility of Bet Input panel
 		public bool IsBetPanelVisible
@@ -85,10 +121,16 @@ namespace ThrowingDiceGUI.ViewModels
 			set => this.RaiseAndSetIfChanged(ref _betButtonsEnabled, value);
 		}
 
-		public int CurrentBet
+		public bool IsBetLockedIn
 		{
-			get => _currentBet;
-			set => this.RaiseAndSetIfChanged(ref _currentBet, value);
+			get => _isBetLockedIn;
+			set => this.RaiseAndSetIfChanged(ref _isBetLockedIn, value);
+		}
+
+		public int CurrentFunds
+		{
+			get => _currentFunds;
+			set => this.RaiseAndSetIfChanged(ref _currentFunds, value);
 		}
 
 		// Cleans up all subscriptions when the ViewModel is no longer needed.

@@ -54,7 +54,6 @@ namespace ThrowingDiceGUI.Models
 
 		// Filed to hold the pending deposit input
 		private TaskCompletionSource<int> _depositTcs;
-		//private TaskCompletionSource<int> _betTcs;
 		
 		// This method will handel all game logic 
 		public GameLogic()
@@ -63,8 +62,8 @@ namespace ThrowingDiceGUI.Models
 			UpdateGameState( state =>
 			{
 				state.MessageValue = Messages.Instance.GetMessage(_WELCOME);
-				state.IsGameRoundStarted = false;
-				state.NewRoundCanBeStarted = false;
+				state.IsBetLockedIn = false;
+				state.EnoughFundsForBet = false;
 			});
 
 			_playerDice = new Dice[] { new Dice(), new Dice() };
@@ -74,8 +73,6 @@ namespace ThrowingDiceGUI.Models
 			_gameDiceSubject = new BehaviorSubject<Dice[]>(_gameDice);
 			_playerScoreSubject = new BehaviorSubject<int>(_playerScore);
 			_npcScoreSubject = new BehaviorSubject<int>(_npcScore);
-			//_currentFundsSubject = new BehaviorSubject<int>(_currentFundsValue);
-			//_betSubject = new BehaviorSubject<int>(_betValue);
 		}
 
 		
@@ -116,19 +113,10 @@ namespace ThrowingDiceGUI.Models
 			_npcScore = score;
 			_npcScoreSubject.OnNext(score);
 		}
-
-		//public void UpdateFunds(int amount)
-		//{
-		//	UpdateGameState( state => state.CurrentFunds = amount);
-		//	//_currentFundsValue = amount;
-		//	//_currentFundsSubject.OnNext(amount);
-		//}
-
+		
 		public void UpdateBet(int amount)
 		{
 			UpdateGameState( state => state.Bet = amount);
-			//_betValue = amount;
-			//_betSubject.OnNext(amount);
 		}
 
 
@@ -177,8 +165,6 @@ namespace ThrowingDiceGUI.Models
 			UpdateGameState(state =>
 			{
 				state.MessageValue = Messages.Instance.GetMessage(_ASK_FOR_DEPOSIT);
-				//state.IsGameStarted = true;
-				//state.NewRoundCanBeStarted = false;
 			});
 
 			// Creates a new TaskCompletionSource for deposit input 
@@ -191,8 +177,6 @@ namespace ThrowingDiceGUI.Models
 			UpdateGameState(state =>
 			{
 				state.CurrentFunds = deposit;
-				state.IsAwaitingDeposit = false;
-				//state.IsAwaitingBet = true;
 			});
 		}
 
@@ -208,8 +192,7 @@ namespace ThrowingDiceGUI.Models
 		{
 			UpdateGameState(state =>
 			{
-				state.IsAwaitingBet = true;
-				state.IsGameRoundStarted = false;
+				state.IsBetLockedIn = false;
 				state.MessageValue = Messages.Instance.GetMessage(_ASK_FOR_BET);		
 			});
 		}
@@ -227,11 +210,11 @@ namespace ThrowingDiceGUI.Models
 		// Bet can no longer be changed 
 		private void BetIsRegistered()
 		{
-			if (!_gameStateSubject.Value.IsGameRoundStarted)
+			if (!_gameStateSubject.Value.IsBetLockedIn)
 			{
 				UpdateGameState( state => {
-					state.IsGameRoundStarted = true;
-					state.CurrentFunds = ( state.CurrentFunds - state.Bet);
+					state.IsBetLockedIn = true;
+					state.CurrentFunds = ( state.CurrentFunds - state.Bet );
 				});
 			}
 		}
@@ -240,8 +223,15 @@ namespace ThrowingDiceGUI.Models
 		// throws all dices and evaluates results 
 		public void StartRound()
 		{
+			// Bet gets registered and is non-refundable 
 			BetIsRegistered();
-			UpdateGameState( state => state.IsAwaitingThrow = false );
+			
+			// A Throw has been performed, and the game round is in an active state
+			UpdateGameState( state =>
+			{
+				state.IsAwaitingThrow = false;
+				state.GameRoundIsActive = true;
+			});
 			
 			ThrowDiceSet(_playerDice);
 			ThrowDiceSet(_npcDice);
@@ -273,10 +263,7 @@ namespace ThrowingDiceGUI.Models
 			}
 			else
 			{
-				UpdateGameState( state =>
-				{
-					state.IsGameRoundStarted = false;
-				});
+				// A winner has been decided
 				CurrentGameEnded(_playerScore); 
 			}
 		}
@@ -285,11 +272,15 @@ namespace ThrowingDiceGUI.Models
 		{
 			UpdateGameState(state => 
 			{
+
+				UpdateGameState(state =>
+				{
+					state.IsBetLockedIn = false;
+					state.GameRoundIsActive = false;
+				});
+
 				// If not enough funds are available a new round cannot be started
-				state.NewRoundCanBeStarted = _currentFundsSubject.Value < 100 ? false : true;
-				state.IsAwaitingBet = state.NewRoundCanBeStarted == false ? true : false; 
-				state.IsAwaitingThrow = false;
-				
+				state.EnoughFundsForBet = _currentFundsSubject.Value >= 100 ? false : true;
 				
 				string winnerMessage = "";
 

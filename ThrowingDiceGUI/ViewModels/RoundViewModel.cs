@@ -18,6 +18,7 @@ namespace ThrowingDiceGUI.ViewModels
 		
 		private bool _isRoundStarted;
 		private bool _isThrowButtonEnabled;
+		private bool _enoughFundsForBet; 
 		private Bitmap _playerDiceImage1;
 		private Bitmap _playerDiceImage2;
 		private Bitmap _npcDiceImage1;
@@ -39,6 +40,8 @@ namespace ThrowingDiceGUI.ViewModels
 			_gameLogic.GameStateObservable.Subscribe(gameState => 
 			{
 				IsThrowButtonEnabled = gameState.IsAwaitingThrow;
+				_enoughFundsForBet = gameState.EnoughFundsForBet;
+
 			}).DisposeWith(_disposables);
 
 			_gameLogic.GameDiceObservable.Subscribe( gameDice =>

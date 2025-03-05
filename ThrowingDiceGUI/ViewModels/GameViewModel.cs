@@ -73,7 +73,7 @@ namespace ThrowingDiceGUI.ViewModels
 			{
 				Message = gameState.MessageValue;
 				IsStartButtonVisible = !gameState.IsGameStarted;
-				IsNewRoundButtonVisible = gameState.NewRoundCanBeStarted;
+				IsNewRoundButtonVisible = gameState.EnoughFundsForBet;
 				
 			}).DisposeWith(_disposables);
 
