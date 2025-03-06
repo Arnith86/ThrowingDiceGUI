@@ -21,5 +21,6 @@ namespace ThrowingDiceGUI.Models
 		public bool IsGameStarted { get; set; }
 		public bool GameIsInCompleteState { get; set; }
 		public string MessageValue { get; set; } = string.Empty;
+		public string SecondaryMessageValue { get; set; } = string.Empty;
 	}
 }

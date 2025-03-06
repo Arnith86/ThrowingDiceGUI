@@ -167,7 +167,21 @@
 		<!-- Panel that displays messages to the player -->
 		<StackPanel  DataContext="{Binding GameVM}" Background="WhiteSmoke">
 
-			<!-- Welcome message -->
+			<!-- Secondery message for player -->
+			<!-- Tels player of added funds, sum won an such -->
+			<TextBlock	HorizontalAlignment="Center"
+						VerticalAlignment="Center"
+						TextAlignment="Center"
+						Margin="5" FontWeight="Bold"
+						TextWrapping="Wrap" MaxWidth="400"
+						Text="{Binding SecondaryMessage}"/>
+
+		</StackPanel>
+
+		<StackPanel  DataContext="{Binding GameVM}" Background="WhiteSmoke">
+
+			<!-- Primary message for player -->
+			<!-- Gives player instructions regarding the game -->
 			<TextBlock	HorizontalAlignment="Center"
 						VerticalAlignment="Center"
 						TextAlignment="Center"
@@ -176,6 +190,7 @@
 						Text="{Binding Message}"/>
 
 		</StackPanel>
+	
 		
 	</StackPanel>
 </UserControl>

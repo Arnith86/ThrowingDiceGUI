@@ -27,19 +27,9 @@ namespace ThrowingDiceGUI.ViewModels
 	{
 		private readonly CompositeDisposable _disposables = new CompositeDisposable();
 		
-		private static string _DEPOSIT_ERROR = "Deposit_Error";
-		private static string _CURRENT_BALANCE = "Current_Balance";
-		private static string _CURRENT_BET = "Current_Bet";
-		private static string _SHOW_DIE = "Show_Die";
-		private static string _BUTTON_PRESS = "Button_Press";
-		private static string _CONTINUE = "Continue";
-		private static string _FOUNDS_ADDED = "Founds_Added";
-		private static string _YES_NO_ERROR = "Yes_No_Error";
-		private static string _END_GAME = "End_Game";
-
-
 		private readonly GameLogic _gameLogic;
 		private string _message;
+		private string _secondaryMessage;
 		private bool _isNewGameButtonVisible;
 		private bool _isNextRoundButtonVisible;
 		private int _playerScore;
@@ -71,6 +61,7 @@ namespace ThrowingDiceGUI.ViewModels
 			_gameLogic.GameStateObservable.Subscribe(gameState =>
 			{
 				Message = gameState.MessageValue;
+				SecondaryMessage = gameState.SecondaryMessageValue;
 				PlayerScore = gameState.PlayerScore;
 				NpcScore = gameState.NpcScore;
 
@@ -115,6 +106,12 @@ namespace ThrowingDiceGUI.ViewModels
 		{
 			get => _message;
 			set => this.RaiseAndSetIfChanged(ref _message, value);  // Notifies UI when changed
+		}
+
+		public string SecondaryMessage
+		{
+			get => _secondaryMessage;
+			set => this.RaiseAndSetIfChanged(ref _secondaryMessage, value);  // Notifies UI when changed
 		}
 	}
 }

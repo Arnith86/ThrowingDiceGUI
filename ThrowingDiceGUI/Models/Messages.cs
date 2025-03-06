@@ -26,19 +26,16 @@ namespace ThrowingDiceGUI.Models
 				{ "Ask_For_Deposit", "What amount do you want to start with? \nRegister a value between 100 - 5000kr." },
 				{ "Deposit_Error", "Only integer values between 100 and 5000 are permited! \nTry again!" },
 				{ "Ask_For_Bet", "How much will you bet? \n 100kr, 300kr or 500kr" },
+				{ "Bet_Chosen", "kr was chosen!" },
+				{ "Bet_Set", "kr deducted from funds!" },
 				{ "Bet_Balance_Error", "Bet exceeds your current funds. Please try again!" },
-				{ "Throw_Die", "Press \"Throw\" to start the round!"},
-				{ "Show_Die", "\nResults of throw:" },
+				{ "Throw_Die", "Click on \"Throw\" to throw the dices!\n"},
 				{ "New_Throw", "This round ended in a draw. Press \"Throw\" to try again!\n" },
-				{ "Button_Press", "Press a button to throw the dices!\n" },
 				{ "Player_Round_Win", "You won this round!\n" },
 				{ "Npc_Round_Win", "You lost this round!\n" },
 				{ "Player_Game_Win", "You won this game!\n" },
 				{ "Npc_Game_Win", "Sadly, you lost this game..!\n" },
-				{ "Continue", "Do you wish to continue the game?\n1: Yes, 2: No" },
-				{ "Founds_Added", "kr Added to your account!\n" },
-				{ "Yes_No_Error", "Provide an integer between 1 and 2!\n" },
-				{ "End_Game", "Thank you for playing!\n" }
+				{ "Founds_Added", "kr Added to your account!\n" }
 			};
 		}
 
@@ -70,6 +67,16 @@ namespace ThrowingDiceGUI.Models
 			return $"Message for key '{key}' not found.";
 		}
 
+
+		public string GetSecondaryMessageValue(string key, int amount)
+		{
+			if (messages.TryGetValue(key, out string message))
+			{
+				lastMessage = amount == -1 ? message : $"{amount} {message}";
+				return lastMessage;
+			}
+			return $"Message for key '{key}' not found.";
+		}
 
 		// Retrives the desired message, if it exists.
 		//public string GetMessage(string key)
