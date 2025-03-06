@@ -58,6 +58,7 @@ namespace ThrowingDiceGUI.ViewModels
 
 			_gameLogic.GameStateObservable.Subscribe(gameState => 
 			{
+				CurrentBet = gameState.Bet;
 				CurrentFunds = gameState.CurrentFunds;
 				IsBetLockedIn = gameState.IsBetLockedIn;
 				// Bet buttons are enabled as long as bet is not locked in

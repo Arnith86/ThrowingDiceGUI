@@ -66,13 +66,13 @@ namespace ThrowingDiceGUI.ViewModels
 			});
 			
 			// The "Next Round" button has been pressed 
-			NextRoundCommand = ReactiveCommand.Create(_gameLogic.AskForBet);   
+			NextRoundCommand = ReactiveCommand.Create(_gameLogic.NextRound);   
 
 			_gameLogic.GameStateObservable.Subscribe(gameState =>
 			{
 				Message = gameState.MessageValue;
 				// "New Game" button will be visible when game starts and after game was lost
-				IsNewGameButtonVisible = !gameState.IsGameStarted;
+				IsNewGameButtonVisible = !gameState.IsGameStarted && !gameState.FundsAreSet;//gameState.GameIsOver;
 				// "Next Round" button is visible only after a winner of current game has been chosen 
 				IsNextRoundButtonVisible = gameState.GameIsInCompleteState && gameState.FundsAreSet && gameState.IsGameStarted;
 

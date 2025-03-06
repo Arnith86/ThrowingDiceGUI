@@ -17,11 +17,7 @@ namespace ThrowingDiceGUI.Models
 		public bool IsBetLockedIn { get; set; }
 		public bool IsAwaitingThrow { get; set; }
 		public bool IsGameStarted { get; set; }
-		public string MessageValue { get; set; } = string.Empty;
-		public bool GameRoundIsActive { get; set; }
 		public bool GameIsInCompleteState { get; set; }
-		//public bool CanANewRoundBeStarted { get; set; }
-		
-
+		public string MessageValue { get; set; } = string.Empty;
 	}
 }
