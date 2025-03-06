@@ -40,40 +40,42 @@ namespace ThrowingDiceGUI.ViewModels
 
 		private readonly GameLogic _gameLogic;
 		private string _message;
-		private bool _isStartButtonVisible;
-		private bool _isNewRoundButtonVisible;
+		private bool _isNewGameButtonVisible;
+		private bool _isNextRoundButtonVisible;
 		private int _playerScore;
 		private int _npcScore;
 	
-		// Start Game button has been pressed
-		public ReactiveCommand<Unit, Unit> StartGameCommand { get; }
+		// Start a new round in current game
+		public ReactiveCommand<Unit, Unit> NextRoundCommand { get; }
 		
 		// New round button pressed
-		public ReactiveCommand<Unit, Unit> NewRoundCommand { get; }
+		public ReactiveCommand<Unit, Unit> NewGameCommand { get; }
 
 
 		public GameViewModel(GameLogic gameLogic)
 		{
 			// Sets the initial settings
-			IsNewRoundButtonVisible = false; 
-			
-
+			IsNewGameButtonVisible = false;
+			IsNextRoundButtonVisible = false; 
 			_gameLogic = gameLogic;
 
-	
-			// The "Start" button has been pressed, starting the game proper.
-			StartGameCommand = ReactiveCommand.Create(() => { 
-				_gameLogic.StartGame();
-			});
 
-			//NewRoundCommand = ReactiveCommand.Create(_gameLogic.NewRound);   // REMOVED for testing reasons 
+			// The "New Game" button has been pressed, Initiating a deposit to funds.
+			NewGameCommand = ReactiveCommand.Create(() => {
+				_gameLogic.StartNewGame();
+			});
+			
+			// The "Next Round" button has been pressed 
+			NextRoundCommand = ReactiveCommand.Create(_gameLogic.AskForBet);   
 
 			_gameLogic.GameStateObservable.Subscribe(gameState =>
 			{
 				Message = gameState.MessageValue;
-				IsStartButtonVisible = !gameState.IsGameStarted;
-				IsNewRoundButtonVisible = gameState.EnoughFundsForBet;
-				
+				// "New Game" button will be visible when game starts and after game was lost
+				IsNewGameButtonVisible = !gameState.IsGameStarted;
+				// "Next Round" button is visible only after a winner of current game has been chosen 
+				IsNextRoundButtonVisible = gameState.GameIsInCompleteState && gameState.FundsAreSet && gameState.IsGameStarted;
+
 			}).DisposeWith(_disposables);
 
 			_gameLogic.PlayerScoreObservable.Subscribe(playerScore =>
@@ -98,20 +100,21 @@ namespace ThrowingDiceGUI.ViewModels
 			get => _npcScore;
 			set => this.RaiseAndSetIfChanged(ref _npcScore, value);
 		}
-	
+
+
 		// Changes the visibility of UI elements
-		// Start Button
-		public bool IsStartButtonVisible
+		// Start new round button
+		public bool IsNewGameButtonVisible
 		{
-			get => _isStartButtonVisible;
-			set => this.RaiseAndSetIfChanged(ref _isStartButtonVisible, value);
+			get => _isNewGameButtonVisible;
+			set => this.RaiseAndSetIfChanged(ref _isNewGameButtonVisible, value);
 		}
 
-		// Start new round button
-		public bool IsNewRoundButtonVisible
+		// Start next round button
+		public bool IsNextRoundButtonVisible
 		{
-			get => _isNewRoundButtonVisible;
-			set => this.RaiseAndSetIfChanged(ref _isNewRoundButtonVisible, value);
+			get => _isNextRoundButtonVisible;
+			set => this.RaiseAndSetIfChanged(ref _isNextRoundButtonVisible, value);
 		}
 
 		// Updates the displayed information message 

@@ -12,16 +12,15 @@ namespace ThrowingDiceGUI.Models
 
 		public int CurrentFunds { get; set; } = 0;
 		public int Bet { get; set; } = 0;
-		//public bool IsAwaitingDeposit {  get; set; }
-		//public bool IsAwaitingBet { get; set; }
+		public bool IsWaitingOnDeposit { get; set; }
+		public bool FundsAreSet {  get; set; }
 		public bool IsBetLockedIn { get; set; }
 		public bool IsAwaitingThrow { get; set; }
 		public bool IsGameStarted { get; set; }
 		public string MessageValue { get; set; } = string.Empty;
-		public bool EnoughFundsForBet { get; set; }
 		public bool GameRoundIsActive { get; set; }
-
-
+		public bool GameIsInCompleteState { get; set; }
+		//public bool CanANewRoundBeStarted { get; set; }
 		
 
 	}

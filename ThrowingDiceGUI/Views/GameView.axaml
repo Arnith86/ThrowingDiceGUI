@@ -104,12 +104,21 @@
 					</StackPanel>
 
 					<StackPanel DataContext="{Binding GameVM}"
-								x:Name="NewRound" 
+								x:Name="NewGame" 
 								Margin="10" 
 								HorizontalAlignment="Center"
 								VerticalAlignment="Center"
-								IsVisible="{Binding IsNewRoundButtonVisible}">
-						<Button Content="New Round" Command="{Binding NewRoundCommand}"></Button>
+								IsVisible="{Binding IsNewGameButtonVisible}">
+						<Button Content="New Game" Command="{Binding NewGameCommand}"></Button>
+					</StackPanel>
+
+					<StackPanel DataContext="{Binding GameVM}"
+								x:Name="NextRound"
+								Margin="10"
+								HorizontalAlignment="Center"
+								VerticalAlignment="Center"
+								IsVisible="{Binding IsNextRoundButtonVisible}">
+						<Button Content="Next Round" Command="{Binding NextRoundCommand}"></Button>
 					</StackPanel>
 				</Panel>
 			</Border>
@@ -165,13 +174,6 @@
 						Margin="5" FontWeight="Bold"
 						TextWrapping="Wrap" MaxWidth="400"
 						Text="{Binding Message}"/>
-
-			<!-- Start button -->
-			<Button Content="Start Game"
-					HorizontalAlignment="Center"
-					VerticalAlignment="Bottom"
-					Command="{Binding StartGameCommand}"
-					IsVisible="{Binding IsStartButtonVisible}"/>
 
 		</StackPanel>
 		

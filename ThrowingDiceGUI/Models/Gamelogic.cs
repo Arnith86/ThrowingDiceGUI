@@ -57,7 +57,6 @@ namespace ThrowingDiceGUI.Models
 			{
 				state.MessageValue = Messages.Instance.GetMessage(_WELCOME);
 				state.IsBetLockedIn = false;
-				state.EnoughFundsForBet = false;
 			});
 
 			_playerDice = new Dice[] { new Dice(), new Dice() };
@@ -127,9 +126,14 @@ namespace ThrowingDiceGUI.Models
 		}
 
 		// Changes game state to game is started. (Welcome message has been displayed) 
-		public void StartGame()
+		public void StartNewGame()
 		{
-			UpdateGameState(state => state.IsGameStarted = true);
+			UpdateGameState( state =>
+			{
+				state.IsGameStarted = true;
+				state.FundsAreSet = false;
+				AskForDeposit();
+			});
 		}
 
 		// If not enough funds, sends to "AskForDeposit" method, otherwise "PlaceBet"
@@ -156,9 +160,10 @@ namespace ThrowingDiceGUI.Models
 		// Async method that ask for deposit to funds, waits for input, then updates current funds
 		public async Task AskForDeposit()
 		{
-			UpdateGameState(state =>
+			UpdateGameState( state => 
 			{
 				state.MessageValue = Messages.Instance.GetMessage(_ASK_FOR_DEPOSIT);
+				state.IsWaitingOnDeposit = true;
 			});
 
 			// Creates a new TaskCompletionSource for deposit input 
@@ -168,9 +173,11 @@ namespace ThrowingDiceGUI.Models
 			int deposit = await _depositTcs.Task;
 
 			// Updates funds and ends fund deposit sequence 
-			UpdateGameState(state =>
+			UpdateGameState( state =>
 			{
 				state.CurrentFunds = deposit;
+				state.IsWaitingOnDeposit = false;
+				state.FundsAreSet = true;
 			});
 		}
 
@@ -187,6 +194,8 @@ namespace ThrowingDiceGUI.Models
 			UpdateGameState(state =>
 			{
 				state.IsBetLockedIn = false;
+				state.GameIsInCompleteState = false;
+				state.GameRoundIsActive = false;
 				state.MessageValue = Messages.Instance.GetMessage(_ASK_FOR_BET);		
 			});
 		}
@@ -264,28 +273,26 @@ namespace ThrowingDiceGUI.Models
 
 		private void CurrentGameEnded(int playerScore)
 		{
-			UpdateGameState(state => 
+			string winnerMessage = "";
+
+			UpdateGameState(state =>
 			{
-
-				UpdateGameState(state =>
-				{
-					state.IsBetLockedIn = false;
-					state.GameRoundIsActive = false;
-				});
-
-				// If not enough funds are available a new round cannot be started
-				state.EnoughFundsForBet = _currentFundsSubject.Value >= 100 ? false : true;
-				
-				string winnerMessage = "";
+				state.IsBetLockedIn = false;
+				state.GameRoundIsActive = false;
 
 				// If playerscore == 2, display player win, else npc win
 				winnerMessage = playerScore == 2 ? _PLAYER_GAME_WIN : _NPC_GAME_WIN;
-				
+
 				state.MessageValue = Messages.Instance.GetMessage(winnerMessage);
+
+				// Player Wins, update funds
+				if (playerScore == 2) state.CurrentFunds += (state.Bet * 2);
+
+				state.GameIsInCompleteState = true;
+				state.Bet = 0;
 			});
 
-			// Player Wins, update funds
-			if (playerScore == 2) UpdateGameState( state => state.CurrentFunds += (state.Bet * 2)); 
+
 		}
 		
 

@@ -20,13 +20,11 @@ namespace ThrowingDiceGUI.ViewModels
 		private static string _DEPOSIT_ERROR = "Deposit_Error";
 
 		private readonly GameLogic _gameLogic;
-		//private readonly GameViewModel _gameViewModel;
 		private string _inputFundsDeposit;
 		private string _inputErrorText;
 		private int _currentFundsValue;
 		private bool _isFundPanelVisible;
-		private bool _isGameStarted;
-		private bool _isGameRoundStarted;
+		private bool _isGameInCompleteState;
 
 		private static readonly Regex InputFundsRegex = new Regex(@"^\d+$");
 		private readonly CompositeDisposable _disposables = new CompositeDisposable();
@@ -57,26 +55,13 @@ namespace ThrowingDiceGUI.ViewModels
 			// Updates gamestate values relevent for this viewmodel
 			_gameLogic.GameStateObservable.Subscribe(gameState =>
 			{
-				//IsGameRoundStarted = gameState.IsGameRoundStarted;
-				IsGameStarted = gameState.IsGameStarted;
+				IsGameInCompleteState= gameState.GameIsInCompleteState;
 				CurrentFunds = gameState.CurrentFunds;
+				// Fund panel is visible only when gamelogic is waiting for deposit input 
+				IsFundPanelVisible = gameState.IsWaitingOnDeposit;
+
 
 			}).DisposeWith(_disposables);
-
-
-			// Funds deposit view will only be shown when funds are less then 100 and the game is started
-			// This initiates the funds deposit sequence, which ends InputFundsDepositCommand
-			this.WhenAnyValue(
-				FundsDepositViewModel => FundsDepositViewModel.CurrentFunds,
-				FundsDepositViewModel => FundsDepositViewModel.IsGameStarted)
-			.Subscribe(Values =>
-			{
-				if (Values.Item1 < 100 && Values.Item2) _gameLogic.AskForDeposit();
-				IsFundPanelVisible = Values.Item1 < 100 && Values.Item2;
-
-			}).DisposeWith(_disposables);
-
-			
 		}
 
 		// New fund deposit recived
@@ -97,18 +82,11 @@ namespace ThrowingDiceGUI.ViewModels
 		}
 
 		// Active if bet has been regestered and first throw of round has been conducted
-		public bool IsGameStarted
+		public bool IsGameInCompleteState
 		{
-			get => _isGameStarted;
-			set => this.RaiseAndSetIfChanged(ref _isGameStarted, value);
+			get => _isGameInCompleteState;
+			set => this.RaiseAndSetIfChanged(ref _isGameInCompleteState, value);
 		}
-
-		//// Active if bet has been regestered and first throw of round has been conducted
-		//public bool IsGameRoundStarted
-		//{
-		//	get => _isGameRoundStarted;
-		//	set => this.RaiseAndSetIfChanged(ref _isGameRoundStarted, value);
-		//}
 
 		public int CurrentFunds
 		{

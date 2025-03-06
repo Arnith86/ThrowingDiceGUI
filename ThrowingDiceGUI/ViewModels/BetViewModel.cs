@@ -59,38 +59,12 @@ namespace ThrowingDiceGUI.ViewModels
 			_gameLogic.GameStateObservable.Subscribe(gameState => 
 			{
 				CurrentFunds = gameState.CurrentFunds;
-				BetButtonsEnabled = !gameState.IsBetLockedIn;
 				IsBetLockedIn = gameState.IsBetLockedIn;
+				// Bet buttons are enabled as long as bet is not locked in
+				BetButtonsEnabled = !gameState.IsBetLockedIn;
+				// Bet panel is visible when funds are set and a game round is active (asking of bet -> winner has been chosen)
+				IsBetPanelVisible = !gameState.GameIsInCompleteState && gameState.FundsAreSet;
 			});
-
-
-			// Handles the visibility of the bet panel, and initiates the bet process if there are enough funds
-			this.WhenAnyValue(
-				BetViewModel => BetViewModel.CurrentFunds,
-				BetViewModel => BetViewModel.CurrentBet,
-				BetViewModel => BetViewModel.IsBetLockedIn
-			).Subscribe(Values =>
-			{
-				// Starts bet process, Panel visible
-				// Enough funds and no active game round is started. 
-				if (Values.Item1 >= 100 && !IsBetLockedIn)
-				{
-					_gameLogic.AskForBet();
-					IsBetPanelVisible = true;
-				}
-				// A bet is locked in, panel visible
-				else if (Values.Item2 != 0 && IsBetLockedIn)
-				{
-					IsBetPanelVisible = true;
-				}
-				// Either not enough funds for bet, or new game round not yet started
-				else
-				{ 
-					IsBetPanelVisible = false;
-				}
-				
-
-			}).DisposeWith(_disposables);
 
 		}
 
