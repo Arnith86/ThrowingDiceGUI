@@ -37,8 +37,9 @@ namespace ThrowingDiceGUI.ViewModels
 			// Validates and Assignes Funds value
 			InputFundDepositCommand = ReactiveCommand.Create<string>(deposit =>
 			{
-			
-				if (InputFundsRegex.IsMatch(deposit) && int.TryParse(deposit, out int depositAmount) && (depositAmount >= 100 && depositAmount <= 5000))
+				// Validation checks if no entrie, only integers and within range of 100 to 5000 
+				if (!string.IsNullOrWhiteSpace(deposit) && InputFundsRegex.IsMatch(deposit) && 
+				int.TryParse(deposit, out int depositAmount) && (depositAmount >= 100 && depositAmount <= 5000))
 				{
 					_gameLogic.SetIncomingDeposit(depositAmount);
 					IsFundPanelVisible = false;
