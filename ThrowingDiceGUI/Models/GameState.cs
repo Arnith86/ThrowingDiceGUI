@@ -12,6 +12,8 @@ namespace ThrowingDiceGUI.Models
 
 		public int CurrentFunds { get; set; } = 0;
 		public int Bet { get; set; } = 0;
+		public int PlayerScore { get; set; } = 0;
+		public int NpcScore { get; set; } = 0;
 		public bool IsWaitingOnDeposit { get; set; }
 		public bool FundsAreSet {  get; set; }
 		public bool IsBetLockedIn { get; set; }

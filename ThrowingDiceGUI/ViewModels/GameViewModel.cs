@@ -71,21 +71,14 @@ namespace ThrowingDiceGUI.ViewModels
 			_gameLogic.GameStateObservable.Subscribe(gameState =>
 			{
 				Message = gameState.MessageValue;
+				PlayerScore = gameState.PlayerScore;
+				NpcScore = gameState.NpcScore;
+
 				// "New Game" button will be visible when game starts and after game was lost
 				IsNewGameButtonVisible = !gameState.IsGameStarted && !gameState.FundsAreSet;//gameState.GameIsOver;
 				// "Next Round" button is visible only after a winner of current game has been chosen 
 				IsNextRoundButtonVisible = gameState.GameIsInCompleteState && gameState.FundsAreSet && gameState.IsGameStarted;
 
-			}).DisposeWith(_disposables);
-
-			_gameLogic.PlayerScoreObservable.Subscribe(playerScore =>
-			{
-				PlayerScore = playerScore;
-			}).DisposeWith(_disposables);
-
-			_gameLogic.NpcScoreObservable.Subscribe(npcScore =>
-			{
-				NpcScore = npcScore;
 			}).DisposeWith(_disposables);
 		}
 

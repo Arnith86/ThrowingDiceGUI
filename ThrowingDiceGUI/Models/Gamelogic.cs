@@ -23,20 +23,15 @@ namespace ThrowingDiceGUI.Models
 		private Dice[] _npcDice;
 		private Dice[] _gameDice;
 
-		private int _playerScore = 0;
-		private int _npcScore = 0;
-
 		// A BehaviorSubject holds the latest value and emits it to new subscribers.
 		private BehaviorSubject<Dice[]> _gameDiceSubject = new BehaviorSubject<Dice[]>(Array.Empty<Dice>());
-		private BehaviorSubject<int> _playerScoreSubject = new BehaviorSubject<int>(0);
-		private BehaviorSubject<int> _npcScoreSubject = new BehaviorSubject<int>(0);
-		private BehaviorSubject<int> _currentFundsSubject = new BehaviorSubject<int>(0);
-		private BehaviorSubject<int> _betSubject = new BehaviorSubject<int>(0);
 
 		/**
 		 * Object housing the current game state
 		 * int CurrentFunds				// The current funds.
 		 * int Bet						// The current bet. 
+		 * int PlayerScore				// Player Current game round wins
+		 * int NpcScore					// Npc Current game round wins
 		 * bool IsWaitingOnDeposit		// is TRUE, when this class is waiting for deposit input from ViewModel, otherwise FALSE.
 		 * bool FundsAreSet				// is TRUE, After ViewModel provides fund input and until game is over. Is FALSE when funds < 100. 
 		 * bool IsBetLockedIn			// is TRUE, after the first throw of gameround, FALSE when either perticipant reach two won game rounds.
@@ -66,17 +61,11 @@ namespace ThrowingDiceGUI.Models
 			_gameDice = new Dice[] { _playerDice[0], _playerDice[1], _npcDice[0], _npcDice[1] };
 
 			_gameDiceSubject = new BehaviorSubject<Dice[]>(_gameDice);
-			_playerScoreSubject = new BehaviorSubject<int>(_playerScore);
-			_npcScoreSubject = new BehaviorSubject<int>(_npcScore);
 		}
 
 		
 		// Expose an IObservable<int> so the ViewModel can subscribe to balance changes.
 		public IObservable<Dice[]> GameDiceObservable => _gameDiceSubject.AsObservable();
-		public IObservable<int> PlayerScoreObservable => _playerScoreSubject.AsObservable();
-		public IObservable<int> NpcScoreObservable => _npcScoreSubject.AsObservable();
-		public IObservable<int> CurrentFundsObservable => _currentFundsSubject.AsObservable();
-		public IObservable<int> BetObservable => _betSubject.AsObservable();
 		public IObservable<GameState> GameStateObservable => _gameStateSubject.AsObservable();
 	
 		
@@ -95,18 +84,6 @@ namespace ThrowingDiceGUI.Models
 			}
 
 			_gameDiceSubject.OnNext(_gameDice);
-		}
-
-		private void UpdatePlayerScore(int score) 
-		 {
-			_playerScore = score;
-			_playerScoreSubject.OnNext(score);
-		}
-
-		private void UpdateNpcScore(int score)
-		{
-			_npcScore = score;
-			_npcScoreSubject.OnNext(score);
 		}
 		
 		public void UpdateBet(int amount)
@@ -133,19 +110,23 @@ namespace ThrowingDiceGUI.Models
 			UpdateGameState( state =>
 			{
 				state.IsGameStarted = true;
-				UpdatePlayerScore(0);
-				UpdateNpcScore(0);
-				UpdateBet(0);
-				AskForDeposit();
+				state.PlayerScore = 0; 
+				state.NpcScore = 0;
+				state.Bet = 0;
 			});
+			AskForDeposit();
 		}
 
 		// Next Round is started, Funds >= 100
 		public void NextRound()
 		{
-			UpdatePlayerScore(0);
-			UpdateNpcScore(0);
-			UpdateBet(0);
+			UpdateGameState(state =>
+			{
+				state.PlayerScore = 0;
+				state.NpcScore = 0;
+				state.Bet = 0;
+			});
+			
 			AskForBet();
 		}
 
@@ -243,23 +224,24 @@ namespace ThrowingDiceGUI.Models
 				else if (RoundEvaluation(_playerDice, _npcDice))
 				{
 					state.MessageValue = Messages.Instance.GetMessage(_PLAYER_ROUND_WIN);
-					UpdatePlayerScore(++_playerScore);
+					state.PlayerScore++;
 				}
 				else
 				{
 					state.MessageValue = Messages.Instance.GetMessage(_NPC_ROUND_WIN);
-					UpdateNpcScore(++_npcScore);
+					state.NpcScore++;
 				}
 
 
 				// Has winner been decided?
-				if (_playerScore != 2 && _npcScore != 2)
+				if (state.PlayerScore != 2 && state.NpcScore != 2)
 				{
 					state.IsAwaitingThrow = true;
 				}
 				else
 				{
-					CurrentGameEnded(_playerScore); 
+					//CurrentGameEnded(_playerScore); 
+					CurrentGameEnded(state.PlayerScore);
 				}
 			});
 		}

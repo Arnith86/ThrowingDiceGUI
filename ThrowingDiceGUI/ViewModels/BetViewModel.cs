@@ -61,6 +61,7 @@ namespace ThrowingDiceGUI.ViewModels
 				CurrentBet = gameState.Bet;
 				CurrentFunds = gameState.CurrentFunds;
 				IsBetLockedIn = gameState.IsBetLockedIn;
+
 				// Bet buttons are enabled as long as bet is not locked in
 				BetButtonsEnabled = !gameState.IsBetLockedIn;
 				// Bet panel is visible when funds are set and a game round is active (asking of bet -> winner has been chosen)
