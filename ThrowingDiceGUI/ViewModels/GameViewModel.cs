@@ -16,6 +16,7 @@ using ReactiveUI.Validation.Helpers;
 using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 using System.Reactive.Linq;
+using System.Threading;
 
 
 
@@ -62,6 +63,14 @@ namespace ThrowingDiceGUI.ViewModels
 			{
 				Message = gameState.MessageValue;
 				SecondaryMessage = gameState.SecondaryMessageValue;
+
+				if (SecondaryMessage != string.Empty) 
+				{
+					Observable.Timer(TimeSpan.FromSeconds(3)).Subscribe(_ => 
+						gameLogic.ClearSecondaryMessage()
+					).DisposeWith(_disposables);
+				} 
+
 				PlayerScore = gameState.PlayerScore;
 				NpcScore = gameState.NpcScore;
 
@@ -70,8 +79,10 @@ namespace ThrowingDiceGUI.ViewModels
 				// "Next Round" button is visible only after a winner of current game has been chosen 
 				IsNextRoundButtonVisible = gameState.GameIsInCompleteState && gameState.FundsAreSet && gameState.IsGameStarted;
 
-			}).DisposeWith(_disposables);
+			}).DisposeWith(_disposables);	 
 		}
+
+
 
 		public int PlayerScore
 		{

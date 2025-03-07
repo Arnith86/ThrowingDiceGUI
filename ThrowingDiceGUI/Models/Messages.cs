@@ -78,28 +78,5 @@ namespace ThrowingDiceGUI.Models
 			return $"Message for key '{key}' not found.";
 		}
 
-		// Retrives the desired message, if it exists.
-		//public string GetMessage(string key)
-		//{
-		//	if (messages.TryGetValue(key, out string message))
-		//	{
-		//		return message;
-		//	}
-
-		//	return $"Message for key '{key}' not found.";
-		//}
-
-		//public void DisplayMessage(string key, int value = -1)
-		//{
-		//	if (value == -1)
-		//	{
-		//		Console.WriteLine(GetMessage(key));
-		//	}
-		//	else
-		//	{
-		//		Console.WriteLine(value + GetMessage(key));
-		//	}
-		//}
-
 	}
 }

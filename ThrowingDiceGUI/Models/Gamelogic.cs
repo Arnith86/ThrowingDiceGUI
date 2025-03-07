@@ -70,8 +70,12 @@ namespace ThrowingDiceGUI.Models
 		// Expose an IObservable<int> so the ViewModel can subscribe to balance changes.
 		public IObservable<Dice[]> GameDiceObservable => _gameDiceSubject.AsObservable();
 		public IObservable<GameState> GameStateObservable => _gameStateSubject.AsObservable();
-	
-		
+
+		public void ClearSecondaryMessage() 
+		{
+			UpdateGameState(state => state.SecondaryMessageValue = string.Empty);
+		}
+
 		// Updates Values and notify subscibers
 		private void UpdateGameDice()
 		{
