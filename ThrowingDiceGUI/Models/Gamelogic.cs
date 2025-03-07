@@ -159,7 +159,7 @@ namespace ThrowingDiceGUI.Models
 				state.CurrentFunds = deposit;
 				state.IsWaitingOnDeposit = false;
 				state.FundsAreSet = true;
-				state.SecondaryMessageValue = Messages.Instance.GetSecondaryMessageValue(_FOUNDS_ADDED, deposit);
+				state.SecondaryMessageValue = Messages.Instance.GetMessage(_FOUNDS_ADDED, deposit);
 			});
 		}
 
@@ -186,7 +186,7 @@ namespace ThrowingDiceGUI.Models
 		{
 			UpdateGameState(state => 
 			{
-				state.SecondaryMessageValue = Messages.Instance.GetSecondaryMessageValue(_BET_CHOSEN, state.Bet);
+				state.SecondaryMessageValue = Messages.Instance.GetMessage(_BET_CHOSEN, state.Bet);
 				state.MessageValue = Messages.Instance.GetMessage(_THROW_DIE);
 				state.IsAwaitingThrow = true;
 			});
@@ -201,7 +201,7 @@ namespace ThrowingDiceGUI.Models
 				{
 					state.IsBetLockedIn = true;
 					state.CurrentFunds = ( state.CurrentFunds - state.Bet );
-					state.SecondaryMessageValue = Messages.Instance.GetSecondaryMessageValue(_BET_SET, state.Bet);
+					state.SecondaryMessageValue = Messages.Instance.GetMessage(_BET_SET, state.Bet);
 				});
 			}
 		}
@@ -235,7 +235,6 @@ namespace ThrowingDiceGUI.Models
 				else if (RoundEvaluation(_playerDice, _npcDice))
 				{
 					state.MessageValue = Messages.Instance.GetMessage(_PLAYER_ROUND_WIN);
-					//state.SecondaryMessageValue = Messages.Instance.GetSecondaryMessage(//////////////////// MESSAGE HERE);
 					state.PlayerScore++;
 				}
 				else
@@ -246,15 +245,8 @@ namespace ThrowingDiceGUI.Models
 
 
 				// Has winner been decided?
-				if (state.PlayerScore != 2 && state.NpcScore != 2)
-				{
-					state.IsAwaitingThrow = true;
-				}
-				else
-				{
-					//CurrentGameEnded(_playerScore); 
-					CurrentGameEnded(state.PlayerScore);
-				}
+				if (state.PlayerScore != 2 && state.NpcScore != 2) state.IsAwaitingThrow = true;
+				else CurrentGameEnded(state.PlayerScore);
 			});
 		}
 
@@ -276,7 +268,7 @@ namespace ThrowingDiceGUI.Models
 				if (playerScore == 2) 
 				{ 
 					state.CurrentFunds += (state.Bet * 2);
-					state.SecondaryMessageValue = Messages.Instance.GetSecondaryMessageValue(_FOUNDS_ADDED, (state.Bet * 2) );
+					state.SecondaryMessageValue = Messages.Instance.GetMessage(_FOUNDS_ADDED, (state.Bet * 2) );
 				}
 
 				state.GameIsInCompleteState = true;

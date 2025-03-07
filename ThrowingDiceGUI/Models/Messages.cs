@@ -26,16 +26,16 @@ namespace ThrowingDiceGUI.Models
 				{ "Ask_For_Deposit", "What amount do you want to start with? \nRegister a value between 100 - 5000kr." },
 				{ "Deposit_Error", "Only integer values between 100 and 5000 are permited! \nTry again!" },
 				{ "Ask_For_Bet", "How much will you bet? \n 100kr, 300kr or 500kr" },
-				{ "Bet_Chosen", "kr was chosen!" },
-				{ "Bet_Set", "kr deducted from funds!" },
 				{ "Bet_Balance_Error", "Bet exceeds your current funds. Please try again!" },
 				{ "Throw_Die", "Click on \"Throw\" to throw the dices!\n"},
 				{ "New_Throw", "This round ended in a draw. Press \"Throw\" to try again!\n" },
 				{ "Player_Round_Win", "You won this round!\n" },
 				{ "Npc_Round_Win", "You lost this round!\n" },
-				{ "Player_Game_Win", "You won this game!\n" },
-				{ "Npc_Game_Win", "Sadly, you lost this game..!\n" },
-				{ "Founds_Added", "kr Added to your account!\n" }
+				{ "Player_Game_Win", "Congratulations, you won this game!\n" },
+				{ "Npc_Game_Win", "Sadly, you lost this game..\nDo you want to try again?\n" },
+				{ "Bet_Chosen", "A bet of *kr was chosen!" },
+				{ "Bet_Set", "Bet is now set, *kr deducted from your funds!" },
+				{ "Founds_Added", "*kr Added to your funds!\n" }
 			};
 		}
 
@@ -61,22 +61,10 @@ namespace ThrowingDiceGUI.Models
 		{
 			if (messages.TryGetValue(key, out string message))
 			{
-				lastMessage = value == -1 ? message : $"{value} {message}";
+				lastMessage = value == -1 ? message : message.Replace("*", $"{value}");
 				return lastMessage;
 			}
 			return $"Message for key '{key}' not found.";
 		}
-
-
-		public string GetSecondaryMessageValue(string key, int amount)
-		{
-			if (messages.TryGetValue(key, out string message))
-			{
-				lastMessage = amount == -1 ? message : $"{amount} {message}";
-				return lastMessage;
-			}
-			return $"Message for key '{key}' not found.";
-		}
-
 	}
 }
