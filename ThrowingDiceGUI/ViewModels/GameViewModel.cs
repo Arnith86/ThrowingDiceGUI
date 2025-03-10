@@ -1,26 +1,10 @@
 ﻿using ReactiveUI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using ThrowingDiceGUI.Models;
-using Avalonia.Platform;
-using Avalonia.Media.Imaging;
-using ReactiveUI.Validation;
-using ReactiveUI.Validation.Abstractions;
-using System.ComponentModel.DataAnnotations;
-using ReactiveUI.Validation.Extensions;
 using ReactiveUI.Validation.Helpers;
 using System.Reactive.Disposables;
-using System.Reactive.Subjects;
 using System.Reactive.Linq;
-using System.Threading;
-
-
-
-
 
 namespace ThrowingDiceGUI.ViewModels
 {

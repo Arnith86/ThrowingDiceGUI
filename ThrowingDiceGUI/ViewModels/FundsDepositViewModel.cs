@@ -1,16 +1,9 @@
 ﻿using ReactiveUI;
-using ReactiveUI.Validation.Extensions;
 using ReactiveUI.Validation.Helpers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
-using System.Reactive.Subjects;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using ThrowingDiceGUI.Models;
 
 namespace ThrowingDiceGUI.ViewModels
